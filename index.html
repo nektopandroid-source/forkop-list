@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Forkop — домены</title>
+<style>
+:root { font-family: system-ui,-apple-system,Segoe UI,sans-serif; color-scheme: dark; }
+body { margin:0; background:#111318; color:#f4f5f7; }
+main { max-width:720px; margin:auto; padding:20px 14px 40px; }
+h1 { font-size:24px; margin:4px 0 18px; }
+.card { background:#1b1e25; border:1px solid #30343d; border-radius:14px; padding:14px; margin-bottom:14px; }
+input, button { font:inherit; border-radius:10px; border:1px solid #3b404a; padding:11px 12px; }
+input { background:#101218; color:#fff; width:100%; box-sizing:border-box; }
+button { background:#2d6cdf; color:#fff; cursor:pointer; border:0; }
+button.secondary { background:#30343d; }
+.row { display:flex; gap:8px; }
+.row > * { flex:1; }
+.small { color:#aeb4bf; font-size:13px; }
+#status { min-height:20px; margin-top:10px; }
+#list { max-height:55vh; overflow:auto; margin-top:10px; }
+.domain { display:flex; align-items:center; gap:8px; padding:9px 2px; border-bottom:1px solid #292d35; }
+.domain span { flex:1; overflow-wrap:anywhere; }
+.del { background:#a83d46; padding:7px 10px; }
+.bad { color:#ff8e8e; }
+.ok { color:#7ee2a8; }
+</style>
+</head>
+<body>
+<main>
+<h1>Forkop — список доменов</h1>
+
+<div class="card">
+  <div class="small">GitHub Token (хранится только в этом браузере)</div>
+  <input id="token" type="password" placeholder="ghp_… / github_pat_…">
+  <div class="row" style="margin-top:8px">
+    <button onclick="saveToken()">Сохранить</button>
+    <button class="secondary" onclick="clearToken()">Удалить token</button>
+  </div>
+  <div class="small" style="margin-top:8px">Нужны права Contents: Read and write только для репозитория forkop-list.</div>
+</div>
+
+<div class="card">
+  <div class="row">
+    <input id="newDomain" placeholder="например: example.com" onkeydown="if(event.key==='Enter') addDomain()">
+    <button onclick="addDomain()">Добавить</button>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <button class="secondary" onclick="loadDomains()">Обновить</button>
+    <button onclick="saveDomains()">Сохранить в GitHub</button>
+  </div>
+  <div id="status" class="small"></div>
+</div>
+
+<div class="card">
+  <input id="search" placeholder="Поиск по доменам" oninput="render()">
+  <div id="count" class="small" style="margin-top:8px"></div>
+  <div id="list"></div>
+</div>
+</main>
+
+<script>
+const OWNER = "nektopandroid-source";
+const REPO = "forkop-list";
+const PATH = "domain.txt";
+const BRANCH = "main";
+let domains = [];
+let fileSha = null;
+
+const tokenEl = document.getElementById("token");
+tokenEl.value = localStorage.getItem("forkop_github_token") || "";
+
+function status(text, cls="") {
+  const e=document.getElementById("status"); e.className="small "+cls; e.textContent=text;
+}
+function saveToken() {
+  localStorage.setItem("forkop_github_token", tokenEl.value.trim());
+  status("Token сохранён в этом браузере.","ok");
+}
+function clearToken() {
+  localStorage.removeItem("forkop_github_token");
+  tokenEl.value="";
+  status("Token удалён.","ok");
+}
+function getToken() {
+  return tokenEl.value.trim() || localStorage.getItem("forkop_github_token") || "";
+}
+function normalize(s) {
+  return s.trim().toLowerCase()
+    .replace(/^https?:\/\//,"")
+    .replace(/^www\./,"")
+    .replace(/\/.*$/,"")
+    .replace(/^\.+|\.+$/g,"");
+}
+async function api(url, options={}) {
+  const token=getToken();
+  if(!token) throw new Error("Сначала укажи GitHub Token.");
+  const headers={
+    "Accept":"application/vnd.github+json",
+    "Authorization":"Bearer "+token,
+    "X-GitHub-Api-Version":"2026-03-10",
+    ...(options.headers||{})
+  };
+  const r=await fetch(url,{...options,headers});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(data.message || ("HTTP "+r.status));
+  return data;
+}
+async function loadDomains() {
+  status("Загружаю список…");
+  try {
+    const data=await api(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}`);
+    fileSha=data.sha;
+    const bytes=Uint8Array.from(atob(data.content.replace(/\n/g,"")),c=>c.charCodeAt(0));
+    const text=new TextDecoder().decode(bytes);
+    domains=[...new Set(text.split(/\r?\n/).map(normalize).filter(Boolean))].sort();
+    render();
+    status(`Загружено: ${domains.length} доменов.`,"ok");
+  } catch(e) { status(e.message,"bad"); }
+}
+function addDomain() {
+  const input=document.getElementById("newDomain");
+  const d=normalize(input.value);
+  if(!d) return;
+  if(!domains.includes(d)) domains.push(d);
+  domains.sort();
+  input.value="";
+  render();
+}
+function removeDomain(d) {
+  domains=domains.filter(x=>x!==d);
+  render();
+}
+function render() {
+  const q=document.getElementById("search").value.trim().toLowerCase();
+  const shown=domains.filter(d=>d.includes(q));
+  document.getElementById("count").textContent=`Всего: ${domains.length} · показано: ${shown.length}`;
+  document.getElementById("list").innerHTML=shown.map(d=>
+    `<div class="domain"><span>${escapeHtml(d)}</span><button class="del" onclick='removeDomain(${JSON.stringify(d)})'>Удалить</button></div>`
+  ).join("");
+}
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+function b64utf8(text) {
+  const bytes=new TextEncoder().encode(text);
+  let bin=""; for(const b of bytes) bin+=String.fromCharCode(b);
+  return btoa(bin);
+}
+async function saveDomains() {
+  if(!fileSha) {
+    status("Сначала нажми «Обновить», чтобы получить SHA файла.","bad"); return;
+  }
+  status("Сохраняю…");
+  try {
+    const content=domains.join("\n")+"\n";
+    await api(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`,{
+      method:"PUT",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        message:"Update domain list",
+        content:b64utf8(content),
+        sha:fileSha,
+        branch:BRANCH
+      })
+    });
+    await loadDomains();
+    status("Сохранено в GitHub.","ok");
+  } catch(e) { status(e.message,"bad"); }
+}
+render();
+</script>
+</body>
+</html>
