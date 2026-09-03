@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<title>Forkop — домены</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color-scheme:dark;
+  --bg:#0f1115;--card:#181b22;--line:#2c313b;--muted:#99a1ae;
+  --accent:#3675f5;--danger:#c94b57;--ok:#57c98a;--input:#101218
+}
+html,body{margin:0;background:var(--bg);color:#f5f7fa}
+body{min-height:100vh}
+main{max-width:780px;margin:auto;padding:12px 12px 40px}
+.header{position:sticky;top:0;z-index:5;background:linear-gradient(var(--bg) 80%,transparent);padding:6px 0 14px}
+.title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+h1{font-size:22px;line-height:1.1;margin:0}
+.sub{font-size:12px;color:var(--muted);margin-top:4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:11px;margin-bottom:11px}
+.row{display:flex;gap:8px}
+input,textarea,button{font:inherit;border-radius:11px}
+input,textarea{background:var(--input);border:1px solid #39404b;color:#fff;padding:11px 12px;outline:none}
+input:focus,textarea:focus{border-color:#5c89ff}
+button{border:0;padding:10px 13px;background:var(--accent);color:#fff;font-weight:650;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+.ghost{background:#252a33}
+.danger{background:var(--danger)}
+.small{font-size:12px;color:var(--muted)}
+.add-input{flex:1;min-width:0}
+.search{width:100%}
+.controls{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:8px}
+.count{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:12px;padding:4px 1px 0}
+.list{margin-top:6px}
+.item{display:flex;align-items:center;gap:9px;padding:8px 2px;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.checkbox{width:18px;height:18px;flex:0 0 auto;accent-color:var(--accent)}
+.domain{flex:1;min-width:0;font-size:14px;overflow-wrap:anywhere}
+.domain-edit{flex:1;min-width:0}
+.icon-btn{padding:7px 9px;font-size:13px}
+.empty{text-align:center;padding:30px 8px;color:#7e8795}
+.busy{opacity:.65;pointer-events:none}
+.toast-wrap{position:fixed;left:0;right:0;bottom:14px;z-index:20;display:flex;justify-content:center;padding:0 12px;pointer-events:none}
+.toast{background:#252a33;border:1px solid #414854;box-shadow:0 8px 30px #0007;color:#fff;border-radius:12px;padding:10px 12px;font-size:13px;display:flex;gap:10px;align-items:center;max-width:700px;pointer-events:auto}
+.toast button{padding:7px 10px;background:#3a414c;font-size:12px}
+#status{min-height:18px;padding-top:5px;font-size:12px}
+.ok{color:var(--ok)}.err{color:#ff939c}.warn{color:#ffd27a}
+details summary{cursor:pointer;font-weight:650}
+textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
+.note{font-size:11px;line-height:1.4;color:#858e9c;margin-top:8px}
+.tokenrow{margin-top:9px}
+@media(max-width:620px){
+  .controls{grid-template-columns:1fr 1fr}
+  .controls .searchWrap{grid-column:1/-1}
+  .controls button{width:100%}
+}
+</style>
+</head>
+<body>
+<main>
+  <div class="header">
+    <div class="title">
+      <div>
+        <h1>Forkop — домены</h1>
+        <div class="sub">nektopandroid-source / forkop-list / domain.txt</div>
+      </div>
+      <button id="refresh" class="ghost" title="Обновить">↻</button>
+    </div>
+  </div>
+
+  <section class="card">
+    <div class="row">
+      <input id="newDomain" class="add-input" placeholder="Добавить домен…" autocomplete="off">
+      <button id="addBtn">Добавить</button>
+    </div>
+
+    <div class="controls">
+      <div class="searchWrap"><input id="search" class="search" placeholder="Поиск"></div>
+      <button id="deleteSelected" class="danger" disabled>Удалить выбранные</button>
+      <button id="selectAll" class="ghost">Выбрать всё</button>
+    </div>
+
+    <div class="count">
+      <span id="countText">Загрузка…</span>
+      <span id="syncText"></span>
+    </div>
+    <div id="status"></div>
+    <div id="list" class="list"></div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Добавить несколько доменов</summary>
+      <textarea id="bulk" placeholder="youtube.com
+googlevideo.com
+ytimg.com"></textarea>
+      <button id="bulkAdd" style="margin-top:8px;width:100%">Добавить всё</button>
+    </details>
+  </section>
+
+  <section class="card">
+    <details id="tokenDetails">
+      <summary>GitHub Token</summary>
+      <input id="token" class="tokenrow" type="password" placeholder="github_pat_…" autocomplete="off">
+      <div class="row">
+        <button id="saveToken" style="margin-top:8px;flex:1">Сохранить и проверить</button>
+        <button id="clearToken" class="ghost" style="margin-top:8px">Удалить</button>
+      </div>
+      <div class="note">
+        Нужен Fine-grained token только для репозитория <b>forkop-list</b> с правом
+        <b>Contents → Read and write</b>. Токен хранится только в этом браузере.
+      </div>
+    </details>
+  </section>
+</main>
+
+<div id="toastWrap" class="toast-wrap"></div>
+
+<script>
+const OWNER="nektopandroid-source", REPO="forkop-list", PATH="domain.txt", BRANCH="main";
+let domains=[], fileSha=null, saving=false, filter="", undoSnapshot=null;
+
+const $=id=>document.getElementById(id);
+
+function setStatus(text,type=""){ $("status").textContent=text; $("status").className=type; }
+function setSync(text,type=""){ $("syncText").textContent=text; $("syncText").className=type; }
+function token(){ return localStorage.getItem("forkop_github_token")||""; }
+
+function normalize(v){
+  let d=(v||"").trim().toLowerCase();
+  d=d.replace(/^https?:\/\//,"").split("/")[0].replace(/^www\./,"").replace(/\.$/,"");
+  return d;
+}
+function validDomain(d){
+  return /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i.test(d);
+}
+function enc(s){
+  const b=new TextEncoder().encode(s); let x=""; for(const n of b)x+=String.fromCharCode(n); return btoa(x);
+}
+function dec(s){
+  const b=atob(s.replace(/\n/g,"")); return new TextDecoder().decode(Uint8Array.from(b,c=>c.charCodeAt(0)));
+}
+async function api(url,opt={}){
+  const t=token();
+  if(!t) throw new Error("Сначала сохраните GitHub Token.");
+  const r=await fetch(url,{...opt,headers:{
+    Accept:"application/vnd.github+json",
+    Authorization:"Bearer "+t,
+    "X-GitHub-Api-Version":"2022-11-28",
+    ...(opt.headers||{})
+  }});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok){
+    if(r.status===401) throw new Error("Token недействителен.");
+    if(r.status===403) throw new Error("Нет права записи. Проверьте Contents → Read and write.");
+    if(r.status===404) throw new Error("Нет доступа к репозиторию или не найден domain.txt.");
+    if(r.status===409) throw new Error("Файл изменился на GitHub. Обновите список.");
+    throw new Error(d.message||("GitHub HTTP "+r.status));
+  }
+  return d;
+}
+async function fetchFile(){
+  return api(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}`);
+}
+async function load(show=true){
+  $("refresh").disabled=true;
+  setSync("синхронизация…");
+  try{
+    const f=await fetchFile();
+    fileSha=f.sha;
+    const text=dec(f.content);
+    domains=[...new Set(text.split(/\r?\n/).map(normalize).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+    render();
+    setSync("● синхронизировано","ok");
+    if(show) setStatus("");
+  }catch(e){
+    setSync("ошибка","err"); setStatus(e.message,"err");
+    if(!token()) $("tokenDetails").open=true;
+  }finally{$("refresh").disabled=false;}
+}
+function render(){
+  filter=$("search").value.trim().toLowerCase();
+  const shown=domains.filter(d=>d.includes(filter));
+  $("countText").textContent=`${domains.length} доменов${filter?` · найдено ${shown.length}`:""}`;
+  $("list").innerHTML="";
+  if(!shown.length){ $("list").innerHTML='<div class="empty">Список пуст</div>'; updateSelection(); return; }
+  const frag=document.createDocumentFragment();
+  shown.forEach(d=>{
+    const row=document.createElement("div"); row.className="item";
+    const cb=document.createElement("input"); cb.type="checkbox"; cb.className="checkbox"; cb.dataset.domain=d;
+    const name=document.createElement("div"); name.className="domain"; name.textContent=d;
+    const edit=document.createElement("button"); edit.className="ghost icon-btn"; edit.textContent="Изменить";
+    edit.onclick=()=>startEdit(row,d);
+    const del=document.createElement("button"); del.className="danger icon-btn"; del.textContent="Удалить";
+    del.onclick=()=>deleteDomains([d]);
+    row.append(cb,name,edit,del); frag.appendChild(row);
+  });
+  $("list").appendChild(frag); updateSelection();
+}
+function updateSelection(){
+  const n=[...document.querySelectorAll(".checkbox:checked")].length;
+  $("deleteSelected").disabled=!n;
+  $("deleteSelected").textContent=n?`Удалить выбранные (${n})`:"Удалить выбранные";
+}
+function snapshot(){ return domains.slice(); }
+function toast(text, undoFn){
+  const wrap=$("toastWrap"); wrap.innerHTML="";
+  const t=document.createElement("div"); t.className="toast";
+  const s=document.createElement("span"); s.textContent=text; t.appendChild(s);
+  if(undoFn){ const b=document.createElement("button"); b.textContent="Отменить"; b.onclick=async()=>{wrap.innerHTML=""; await undoFn();}; t.appendChild(b); }
+  wrap.appendChild(t);
+  setTimeout(()=>{ if(wrap.contains(t)) wrap.innerHTML=""; },4500);
+}
+async function commit(message){
+  if(!fileSha) await load(false);
+  if(!fileSha) throw new Error("Не удалось получить текущую версию файла.");
+  saving=true; document.body.classList.add("busy"); setSync("сохранение…");
+  try{
+    const content=domains.length?domains.join("\n")+"\n":"";
+    const f=await api(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`,{
+      method:"PUT",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message,content:enc(content),sha:fileSha,branch:BRANCH})
+    });
+    fileSha=f.content.sha;
+    setSync("● сохранено","ok");
+    return true;
+  }catch(e){
+    setSync("ошибка","err"); throw e;
+  }finally{saving=false; document.body.classList.remove("busy");}
+}
+async function deleteDomains(list){
+  if(saving||!list.length)return;
+  const old=snapshot(), set=new Set(list);
+  domains=domains.filter(d=>!set.has(d)); render();
+  setStatus("");
+  try{
+    await commit(list.length===1?`Delete ${list[0]}`:"Delete domains");
+    toast(list.length===1?`Удалён ${list[0]}`:`Удалено: ${list.length}`,async()=>{
+      domains=old; render();
+      try{await commit("Undo delete"); toast("Удаление отменено");}catch(e){setStatus(e.message,"err");}
+    });
+  }catch(e){
+    domains=old; render(); setStatus(e.message,"err");
+  }
+}
+function startEdit(row,old){
+  if(saving)return;
+  row.innerHTML="";
+  const input=document.createElement("input"); input.value=old; input.className="domain-edit";
+  const ok=document.createElement("button"); ok.textContent="✓"; ok.className="icon-btn";
+  const cancel=document.createElement("button"); cancel.textContent="×"; cancel.className="ghost icon-btn";
+  row.append(input,ok,cancel); input.focus(); input.select();
+  const cancelEdit=()=>render();
+  cancel.onclick=cancelEdit;
+  input.onkeydown=e=>{if(e.key==="Escape")cancelEdit(); if(e.key==="Enter")ok.click();};
+  ok.onclick=async()=>{
+    const nd=normalize(input.value);
+    if(!validDomain(nd)){setStatus("Некорректный домен.","err");return;}
+    if(nd!==old&&domains.includes(nd)){setStatus("Такой домен уже есть.","warn");return;}
+    const oldList=snapshot();
+    domains=domains.map(d=>d===old?nd:d).sort((a,b)=>a.localeCompare(b)); render();
+    try{
+      await commit(`Edit ${old} to ${nd}`);
+      toast(`Изменено: ${nd}`,async()=>{
+        domains=oldList; render();
+        try{await commit("Undo edit");toast("Изменение отменено")}catch(e){setStatus(e.message,"err")}
+      });
+    }catch(e){domains=oldList;render();setStatus(e.message,"err")}
+  };
+}
+async function addDomains(values){
+  if(saving)return;
+  const old=snapshot(), added=[];
+  for(const v of values){
+    const d=normalize(v);
+    if(d&&!domains.includes(d)&&validDomain(d)){domains.push(d);added.push(d);}
+  }
+  if(!added.length){setStatus("Новых корректных доменов не найдено.","warn");return;}
+  domains=[...new Set(domains)].sort((a,b)=>a.localeCompare(b)); render();
+  try{
+    await commit(added.length===1?`Add ${added[0]}`:"Add domains");
+    toast(added.length===1?`Добавлен ${added[0]}`:`Добавлено: ${added.length}`,async()=>{
+      domains=old; render();
+      try{await commit("Undo add");toast("Добавление отменено")}catch(e){setStatus(e.message,"err")}
+    });
+    setStatus("");
+  }catch(e){domains=old;render();setStatus(e.message,"err")}
+}
+$("addBtn").onclick=()=>{const v=$("newDomain").value;$("newDomain").value="";addDomains([v]);};
+$("newDomain").onkeydown=e=>{if(e.key==="Enter")$("addBtn").click();};
+$("search").oninput=render;
+$("refresh").onclick=()=>load(true);
+$("list").onchange=updateSelection;
+$("deleteSelected").onclick=()=>{
+  const xs=[...document.querySelectorAll(".checkbox:checked")].map(x=>x.dataset.domain);
+  if(xs.length)deleteDomains(xs);
+};
+$("selectAll").onclick=()=>{
+  const boxes=[...document.querySelectorAll(".checkbox")];
+  const allChecked=boxes.length&&boxes.every(x=>x.checked);
+  boxes.forEach(x=>x.checked=!allChecked); updateSelection();
+  $("selectAll").textContent=allChecked?"Выбрать всё":"Снять выбор";
+};
+$("bulkAdd").onclick=()=>{
+  const v=$("bulk").value.split(/[,\n;]+/).map(x=>x.trim()).filter(Boolean);
+  $("bulk").value=""; addDomains(v);
+};
+$("saveToken").onclick=async()=>{
+  const t=$("token").value.trim();
+  if(!t){setStatus("Введите Token.","err");return;}
+  localStorage.setItem("forkop_github_token",t);
+  await load(true);
+};
+$("clearToken").onclick=()=>{
+  localStorage.removeItem("forkop_github_token");$("token").value="";
+  domains=[];fileSha=null;render();setSync("");setStatus("Token удалён.","ok");
+};
+$("token").value=token();
+if(token())load(true); else {setSync("");setStatus("Укажите GitHub Token ниже.","warn");$("tokenDetails").open=true;}
+render();
+</script>
+</body>
+</html>
