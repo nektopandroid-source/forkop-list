@@ -70,7 +70,7 @@ textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
         <h1>Forkop — домены</h1>
         <div class="sub">nektopandroid-source / forkop-list / domain.txt · данные читаются напрямую из GitHub</div>
       </div>
-      <button id="refresh" class="ghost" title="Загрузить актуальный список с GitHub">↻</button>
+      <button id="refresh" class="ghost" title="Загрузить актуальный domain.txt с GitHub">↻</button>
     </div>
   </div>
 
@@ -90,6 +90,7 @@ textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
       <span id="countText">Загрузка…</span>
       <span id="syncText"></span>
     </div>
+    <div class="small" style="padding-top:3px">Обновление читает <code>raw.githubusercontent.com</code>, а не копию списка из браузера.</div>
     <div id="status"></div>
     <div id="list" class="list"></div>
   </section>
@@ -166,23 +167,40 @@ async function api(url,opt={}){
   return d;
 }
 async function fetchFile(){
-  return api(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}&_=${Date.now()}`);
+  // For refresh we read the public raw file directly.
+  // This avoids GitHub Contents API/CDN returning an older cached representation.
+  const rawUrl =
+    `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${PATH}?_=${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const r = await fetch(rawUrl, {
+    cache: "no-store",
+    headers: { "Cache-Control": "no-cache" }
+  });
+  if(!r.ok) throw new Error("Не удалось загрузить актуальный domain.txt с GitHub (HTTP "+r.status+").");
+  return await r.text();
 }
 async function load(show=true){
   $("refresh").disabled=true;
-  setSync("синхронизация…");
+  setSync("загрузка актуального списка…");
   try{
-    const f=await fetchFile();
-    fileSha=f.sha;
-    const text=dec(f.content);
+    const text = await fetchFile();
     domains=[...new Set(text.split(/\r?\n/).map(normalize).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+
+    // Get the current file SHA too, so the next write uses the latest revision.
+    const meta = await api(
+      `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}&_=${Date.now()}-${Math.random().toString(36).slice(2)}`
+    );
+    fileSha = meta.sha;
+
     render();
-    setSync("● синхронизировано","ok");
+    setSync("● актуально","ok");
     if(show) setStatus("");
   }catch(e){
-    setSync("ошибка","err"); setStatus(e.message,"err");
+    setSync("ошибка","err");
+    setStatus(e.message,"err");
     if(!token()) $("tokenDetails").open=true;
-  }finally{$("refresh").disabled=false;}
+  }finally{
+    $("refresh").disabled=false;
+  }
 }
 function render(){
   filter=$("search").value.trim().toLowerCase();
@@ -229,7 +247,7 @@ async function commit(message){
       body:JSON.stringify({message,content:enc(content),sha:fileSha,branch:BRANCH})
     });
     fileSha=f.content.sha;
-    // GitHub Pages/API can cache aggressively. Re-read the file with a cache-busting URL.
+    // Re-read from raw.githubusercontent.com so the visible list is the server copy.
     await load(false);
     setSync("● синхронизировано","ok");
     return true;
