@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f1115">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Forkop — домены</title>
 <style>
 *{box-sizing:border-box}
@@ -65,9 +68,9 @@ textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
     <div class="title">
       <div>
         <h1>Forkop — домены</h1>
-        <div class="sub">nektopandroid-source / forkop-list / domain.txt</div>
+        <div class="sub">nektopandroid-source / forkop-list / domain.txt · данные читаются напрямую из GitHub</div>
       </div>
-      <button id="refresh" class="ghost" title="Обновить">↻</button>
+      <button id="refresh" class="ghost" title="Загрузить актуальный список с GitHub">↻</button>
     </div>
   </div>
 
@@ -146,7 +149,7 @@ function dec(s){
 async function api(url,opt={}){
   const t=token();
   if(!t) throw new Error("Сначала сохраните GitHub Token.");
-  const r=await fetch(url,{...opt,headers:{
+  const r=await fetch(url,{...opt,cache:"no-store",headers:{
     Accept:"application/vnd.github+json",
     Authorization:"Bearer "+t,
     "X-GitHub-Api-Version":"2022-11-28",
@@ -163,7 +166,7 @@ async function api(url,opt={}){
   return d;
 }
 async function fetchFile(){
-  return api(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}`);
+  return api(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}&_=${Date.now()}`);
 }
 async function load(show=true){
   $("refresh").disabled=true;
@@ -226,7 +229,9 @@ async function commit(message){
       body:JSON.stringify({message,content:enc(content),sha:fileSha,branch:BRANCH})
     });
     fileSha=f.content.sha;
-    setSync("● сохранено","ok");
+    // GitHub Pages/API can cache aggressively. Re-read the file with a cache-busting URL.
+    await load(false);
+    setSync("● синхронизировано","ok");
     return true;
   }catch(e){
     setSync("ошибка","err"); throw e;
