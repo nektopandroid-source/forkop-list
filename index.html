@@ -415,7 +415,7 @@ function handleRefresh(){
   fetchFileFromGitHub().then(function(){
     editingDomain=null;
     if(getToken())setSyncState("ok","● подключено к GitHub · синхронизировано");
-    else setSyncState("ok","● синхронизировано");
+    else setSyncState("ok","● подключено к GitHub (без токена · только чтение)");
     render();
     showToast("Обновлено","ok");
   }).catch(function(err){
@@ -620,14 +620,9 @@ document.addEventListener("DOMContentLoaded",function(){
   setSyncState("loading","загрузка...");
   setBusy(true,"Загружаю...");
   loadStoredToken().then(function(){
-    if(!getToken()){
-      setSyncState("loading","токен не задан");
-      setBusy(false);
-      render();
-      return;
-    }
     return fetchFileFromGitHub().then(function(){
-      setSyncState("ok","● подключено к GitHub · синхронизировано");
+      if(getToken())setSyncState("ok","● подключено к GitHub · синхронизировано");
+      else setSyncState("ok","● подключено к GitHub (без токена · только чтение)");
       render();
     }).catch(function(err){
       setSyncState("error","ошибка");
