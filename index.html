@@ -90,7 +90,7 @@ textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
       <span id="countText">Загрузка…</span>
       <span id="syncText"></span>
     </div>
-    <div class="small" style="padding-top:3px">Обновление читает <code>raw.githubusercontent.com</code>, а не копию списка из браузера.</div>
+    <div class="small" style="padding-top:3px">Обновление читает <code>api.github.com</code> с принудительным обновлением, а не копию списка из браузера.</div>
     <div id="status"></div>
     <div id="list" class="list"></div>
   </section>
@@ -235,32 +235,24 @@ async function api(url,opt={}){
   return d;
 }
 async function fetchFile(){
-  // For refresh we read the public raw file directly.
-  // This avoids GitHub Contents API/CDN returning an older cached representation.
-  const rawUrl =
-    `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${PATH}?_=${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  const r = await fetch(rawUrl, {
-    cache: "no-store",
-    headers: { "Cache-Control": "no-cache" }
-  });
-  if(!r.ok) throw new Error("Не удалось загрузить актуальный domain.txt с GitHub (HTTP "+r.status+").");
-  return await r.text();
+  const url =
+    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}&_=${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return api(url, {cache:"no-store"});
 }
 async function load(show=true){
   $("refresh").disabled=true;
   setSync("загрузка актуального списка…");
   try{
-    const text = await fetchFile();
-    domains=[...new Set(text.split(/\r?\n/).map(normalize).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+    const f = await fetchFile();
+    fileSha = f.sha;
+    const text = dec(f.content);
 
-    // Get the current file SHA too, so the next write uses the latest revision.
-    const meta = await api(
-      `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}&_=${Date.now()}-${Math.random().toString(36).slice(2)}`
-    );
-    fileSha = meta.sha;
+    domains=[...new Set(
+      text.split(/\r?\n/).map(normalize).filter(Boolean)
+    )].sort((a,b)=>a.localeCompare(b));
 
     render();
-    setSync("● актуально","ok");
+    setSync("● синхронизировано с GitHub","ok");
     if(show) setStatus("");
   }catch(e){
     setSync("ошибка","err");
@@ -413,22 +405,19 @@ $("saveToken").onclick=async()=>{
     updateTokenState(true);
     $("tokenMsg").textContent="✓ Token сохранён. Проверяю доступ к GitHub…";
     $("tokenMsg").className="small ok";
-    try{
-      const response=await fetchFile();
-      const meta=await api(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}&_=${Date.now()}-${Math.random().toString(36).slice(2)}`);
-      fileSha=meta.sha;
-      domains=[...new Set(response.split(/\r?\n/).map(normalize).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-      render();
-      setSync("● токен проверен","ok");
-      $("tokenMsg").textContent="✓ Token сохранён и работает.";
-    }catch(e){
-      // Important: the token remains saved even when GitHub/network check fails.
-      $("tokenMsg").textContent="✓ Token сохранён. Проверка GitHub не удалась: "+e.message;
-      $("tokenMsg").className="small warn";
-    }
+
+    const f = await fetchFile();
+    fileSha=f.sha;
+    domains=[...new Set(dec(f.content).split(/\r?\n/).map(normalize).filter(Boolean))]
+      .sort((a,b)=>a.localeCompare(b));
+    render();
+    setSync("● токен проверен","ok");
+    $("tokenMsg").textContent="✓ Token сохранён и работает.";
+    $("status").textContent="";
   }catch(e){
-    $("tokenMsg").textContent=e.message;
-    $("tokenMsg").className="small err";
+    // The token remains saved even if GitHub/network is unavailable.
+    $("tokenMsg").textContent="✓ Token сохранён. GitHub недоступен: "+e.message;
+    $("tokenMsg").className="small warn";
   }finally{
     $("saveToken").disabled=false;
   }
