@@ -1,1073 +1,475 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" />
-  <title>Forkop — домены</title>
-  <style>
-    :root {
-      --bg: #0b0f14;
-      --surface: #121820;
-      --surface2: #1a2430;
-      --surface3: #202c3a;
-      --border: #2b3a4a;
-      --text: #e8edf2;
-      --text-dim: #9aa7b5;
-      --accent: #3b82f6;
-      --accent-strong: #2563eb;
-      --danger: #dc2626;
-      --danger-hover: #b91c1c;
-      --green: #22c55e;
-      --amber: #f59e0b;
-      --radius: 14px;
-      --radius-sm: 10px;
-      --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-      --font: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font);
-      font-size: 15px;
-      line-height: 1.45;
-      -webkit-font-smoothing: antialiased;
-      padding: 0 12px 32px;
-    }
-
-    .app {
-      max-width: 860px;
-      margin: 0 auto;
-    }
-
-    header {
-      position: sticky;
-      top: 0;
-      background: rgba(11, 15, 20, 0.9);
-      backdrop-filter: blur(12px);
-      padding: 20px 0 12px;
-      z-index: 20;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 16px;
-    }
-
-    .header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    h1 {
-      font-size: 1.7rem;
-      font-weight: 600;
-      margin: 0;
-      letter-spacing: -0.02em;
-    }
-
-    .subtitle {
-      font-size: 0.85rem;
-      color: var(--text-dim);
-      margin-top: 4px;
-      word-break: break-all;
-    }
-
-    .btn {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 20px;
-      padding: 7px 16px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: 0.15s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
-
-    .btn:hover {
-      background: var(--surface3);
-      border-color: #3d5068;
-    }
-
-    .btn:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      border-color: var(--accent-strong);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-strong);
-    }
-
-    .btn-danger {
-      background: var(--danger);
-      border-color: var(--danger-hover);
-      color: white;
-    }
-
-    .btn-danger:hover {
-      background: var(--danger-hover);
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .input {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: var(--radius-sm);
-      padding: 10px 14px;
-      font-size: 0.95rem;
-      outline: none;
-      transition: 0.15s;
-      width: 100%;
-    }
-
-    .input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-    }
-
-    .search-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .domain-list-container {
-      max-height: 420px;
-      overflow-y: auto;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: #0d1218;
-      padding: 6px;
-      margin-top: 12px;
-    }
-
-    .domain-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 8px;
-      border-radius: 8px;
-      border-bottom: 1px solid #1f2a35;
-      transition: 0.1s;
-      flex-wrap: wrap;
-    }
-
-    .domain-item:hover {
-      background: #17212b;
-    }
-
-    .domain-item .domain-text {
-      flex: 1;
-      word-break: break-all;
-      font-family: 'Cascadia Code', 'JetBrains Mono', 'Fira Code', monospace;
-      font-size: 0.9rem;
-    }
-
-    .domain-item .item-actions {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .small-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-dim);
-      border-radius: 16px;
-      padding: 4px 10px;
-      cursor: pointer;
-      font-size: 0.75rem;
-      transition: 0.1s;
-    }
-
-    .small-btn:hover {
-      color: var(--text);
-      border-color: #526277;
-    }
-
-    .small-btn.edit:hover {
-      color: var(--accent);
-      border-color: var(--accent);
-    }
-
-    .small-btn.delete:hover {
-      color: var(--danger);
-      border-color: var(--danger);
-    }
-
-    .status-line {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin: 14px 0 8px;
-      font-size: 0.9rem;
-    }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #0f1722;
-      padding: 6px 12px;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-    }
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .dot.green {
-      background: var(--green);
-    }
-
-    .dot.amber {
-      background: var(--amber);
-    }
-
-    .dot.red {
-      background: var(--danger);
-    }
-
-    .dot.gray {
-      background: #5b6b7c;
-    }
-
-    .toast-container {
-      position: fixed;
-      bottom: 22px;
-      right: 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      z-index: 9999;
-    }
-
-    .toast {
-      background: #1e2a36;
-      color: var(--text);
-      border: 1px solid #34485e;
-      border-left: 4px solid var(--accent);
-      border-radius: 8px;
-      padding: 12px 16px;
-      box-shadow: var(--shadow);
-      font-size: 0.9rem;
-      max-width: 340px;
-      word-break: break-word;
-      animation: slidein 0.25s ease;
-    }
-
-    .toast.error {
-      border-left-color: var(--danger);
-    }
-
-    .toast.success {
-      border-left-color: var(--green);
-    }
-
-    @keyframes slidein {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    details {
-      margin-bottom: 12px;
-      background: #0f151c;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 8px 14px;
-    }
-
-    summary {
-      cursor: pointer;
-      font-weight: 500;
-      color: var(--text-dim);
-      user-select: none;
-    }
-
-    .token-status {
-      font-size: 0.85rem;
-      margin-top: 6px;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .editing-input {
-      min-width: 180px;
-      flex: 1;
-    }
-
-    @media (max-width: 540px) {
-      header {
-        padding: 12px 0 10px;
-      }
-      h1 {
-        font-size: 1.4rem;
-      }
-      .domain-item {
-        gap: 6px;
-      }
-      .domain-text {
-        font-size: 0.8rem;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Forkop — домены</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color-scheme:dark;
+  --bg:#0f1115;--card:#181b22;--line:#2c313b;--muted:#99a1ae;
+  --accent:#3675f5;--danger:#c94b57;--ok:#57c98a;--input:#101218
+}
+html,body{margin:0;background:var(--bg);color:#f5f7fa}
+body{min-height:100vh}
+main{max-width:780px;margin:auto;padding:12px 12px 40px}
+.header{position:sticky;top:0;z-index:5;background:linear-gradient(var(--bg) 80%,transparent);padding:6px 0 14px}
+.title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+h1{font-size:22px;line-height:1.1;margin:0}
+.sub{font-size:12px;color:var(--muted);margin-top:4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:11px;margin-bottom:11px}
+.row{display:flex;gap:8px}
+input,textarea,button{font:inherit;border-radius:11px}
+input,textarea{background:var(--input);border:1px solid #39404b;color:#fff;padding:11px 12px;outline:none}
+input:focus,textarea:focus{border-color:#5c89ff}
+button{border:0;padding:10px 13px;background:var(--accent);color:#fff;font-weight:650;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+.ghost{background:#252a33}
+.danger{background:var(--danger)}
+.small{font-size:12px;color:var(--muted)}
+.add-input{flex:1;min-width:0}
+.search{width:100%}
+.controls{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:8px}
+.count{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:12px;padding:4px 1px 0}
+.list{margin-top:6px}
+.item{display:flex;align-items:center;gap:9px;padding:8px 2px;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.checkbox{width:18px;height:18px;flex:0 0 auto;accent-color:var(--accent)}
+.domain{flex:1;min-width:0;font-size:14px;overflow-wrap:anywhere}
+.domain-edit{flex:1;min-width:0}
+.icon-btn{padding:7px 9px;font-size:13px}
+.empty{text-align:center;padding:30px 8px;color:#7e8795}
+.busy{opacity:.65;pointer-events:none}
+.toast-wrap{position:fixed;left:0;right:0;bottom:14px;z-index:20;display:flex;justify-content:center;padding:0 12px;pointer-events:none}
+.toast{background:#252a33;border:1px solid #414854;box-shadow:0 8px 30px #0007;color:#fff;border-radius:12px;padding:10px 12px;font-size:13px;display:flex;gap:10px;align-items:center;max-width:700px;pointer-events:auto}
+.toast button{padding:7px 10px;background:#3a414c;font-size:12px}
+#status{min-height:18px;padding-top:5px;font-size:12px}
+.ok{color:var(--ok)}.err{color:#ff939c}.warn{color:#ffd27a}
+details summary{cursor:pointer;font-weight:650}
+textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
+.note{font-size:11px;line-height:1.4;color:#858e9c;margin-top:8px}
+.tokenrow{margin-top:9px}
+@media(max-width:620px){
+  .controls{grid-template-columns:1fr 1fr}
+  .controls .searchWrap{grid-column:1/-1}
+  .controls button{width:100%}
+}
+</style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <div class="header-row">
-        <div>
-          <h1>Forkop — домены</h1>
-          <div class="subtitle">nektopandroid-source / forkop-list / domain.txt</div>
-        </div>
-        <button id="refreshBtn" class="btn" title="Обновить с GitHub">↻ Обновить</button>
+<main>
+  <div class="header">
+    <div class="title">
+      <div>
+        <h1>Forkop — домены</h1>
+        <div class="sub">nektopandroid-source / forkop-list / domain.txt · панель v10</div>
       </div>
-    </header>
-
-    <div class="card">
-      <div class="row" style="margin-bottom:10px;">
-        <input id="addDomainInput" class="input" type="text" placeholder="Добавить домен..." autocomplete="off" />
-        <button id="addBtn" class="btn btn-primary">Добавить</button>
-      </div>
-      <div class="search-row" style="margin-bottom:6px;">
-        <input id="searchInput" class="input" type="text" placeholder="Поиск" autocomplete="off" />
-      </div>
-      <div class="row" style="justify-content:space-between; margin: 10px 0 6px;">
-        <div class="row">
-          <button id="selectAllBtn" class="btn small-btn">Выбрать всё</button>
-          <button id="deleteSelectedBtn" class="btn btn-danger">Удалить выбранные</button>
-        </div>
-        <span id="totalCount" style="font-weight:500;">Всего: 0 доменов</span>
-      </div>
-      <div class="status-line">
-        <span id="syncStatus" class="status-badge"><span class="dot gray"></span> загрузка...</span>
-        <span id="saveIndicator" class="status-badge hidden">💾 Сохраняю...</span>
-      </div>
-      <div id="domainListContainer" class="domain-list-container"></div>
-      <div style="margin-top:12px;">
-        <span id="undoToast" class="status-badge" style="display:none; cursor:pointer;">↩ Отменить последнее удаление</span>
-      </div>
+      <button id="refresh" class="ghost" title="Загрузить актуальный domain.txt с GitHub">↻</button>
     </div>
-
-    <details>
-      <summary>Добавить несколько доменов</summary>
-      <div style="margin-top:12px;">
-        <textarea id="bulkAddTextarea" class="input" rows="5" placeholder="youtube.com, googlevideo.com; ytimg.com"></textarea>
-        <div class="row" style="margin-top:10px;">
-          <button id="bulkAddBtn" class="btn btn-primary">Добавить всё</button>
-          <span id="bulkResult" style="color:var(--text-dim); font-size:0.9rem;"></span>
-        </div>
-      </div>
-    </details>
-
-    <details>
-      <summary>GitHub Token</summary>
-      <div style="margin-top:12px;">
-        <div class="row">
-          <input id="tokenInput" class="input" type="password" placeholder="github_pat_..." autocomplete="off" />
-          <button id="saveTokenBtn" class="btn btn-primary">Сохранить Token</button>
-          <button id="deleteTokenBtn" class="btn btn-danger">Удалить</button>
-        </div>
-        <div id="tokenStatus" class="token-status">GitHub Token · не задан</div>
-      </div>
-    </details>
   </div>
 
-  <div id="toastContainer" class="toast-container"></div>
-
-  <script>
-    (function() {
-      'use strict';
-
-      // ========== CONSTANTS ==========
-      const OWNER = 'nektopandroid-source';
-      const REPO = 'forkop-list';
-      const BRANCH = 'main';
-      const FILE_PATH = 'domain.txt';
-      const API_URL = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`;
-      const RAW_URL = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE_PATH}`;
-      const API_HEADERS_BASE = {
-        'Accept': 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-        'Cache-Control': 'no-cache'
-      };
-
-      // ========== STATE ==========
-      let domains = [];           // normalized domains array, sorted
-      let fileSha = null;
-      let currentFilter = '';
-      let selectedCheckboxes = new Set();
-      let lastDeletedDomains = [];
-      let undoTimeout = null;
-      let token = localStorage.getItem('forkop_token') || '';
-
-      // ========== DOM REFERENCES ==========
-      const $ = (id) => document.getElementById(id);
-      const domainListContainer = $('domainListContainer');
-      const refreshBtn = $('refreshBtn');
-      const addDomainInput = $('addDomainInput');
-      const addBtn = $('addBtn');
-      const searchInput = $('searchInput');
-      const selectAllBtn = $('selectAllBtn');
-      const deleteSelectedBtn = $('deleteSelectedBtn');
-      const totalCount = $('totalCount');
-      const syncStatus = $('syncStatus');
-      const saveIndicator = $('saveIndicator');
-      const undoToast = $('undoToast');
-      const bulkAddTextarea = $('bulkAddTextarea');
-      const bulkAddBtn = $('bulkAddBtn');
-      const bulkResult = $('bulkResult');
-      const tokenInput = $('tokenInput');
-      const saveTokenBtn = $('saveTokenBtn');
-      const deleteTokenBtn = $('deleteTokenBtn');
-      const tokenStatus = $('tokenStatus');
-      const toastContainer = $('toastContainer');
-
-      // ========== UTILITY FUNCTIONS ==========
-      function encodeBase64Utf8(text) {
-        try {
-          const bytes = new TextEncoder().encode(text);
-          let binary = '';
-          bytes.forEach((byte) => {
-            binary += String.fromCharCode(byte);
-          });
-          return btoa(binary);
-        } catch (e) {
-          console.error('Base64 encode error', e);
-          return '';
-        }
-      }
-
-      function decodeBase64Utf8(base64) {
-        try {
-          const binary = atob(base64);
-          const bytes = new Uint8Array([...binary].map(ch => ch.charCodeAt(0)));
-          return new TextDecoder('utf-8').decode(bytes);
-        } catch (e) {
-          console.error('Base64 decode error', e);
-          return '';
-        }
-      }
-
-      function normalizeDomain(raw) {
-        if (!raw) return null;
-        let value = String(raw).trim().toLowerCase();
-        if (!value) return null;
-
-        // strip protocol
-        value = value.replace(/^(https?:\/\/)?(www\.)?/i, '');
-        // strip path, query, hash
-        value = value.split(/[/?#]/)[0];
-        // strip port
-        value = value.split(':')[0];
-        // remove trailing dot
-        value = value.replace(/\.+$/, '');
-        // basic domain pattern validation
-        if (!value || value.length < 4 || value.includes(' ') || !value.includes('.')) return null;
-        // reject localhost or IP patterns without domain suffix? keep simple
-        if (/^[\d.]+$/.test(value)) return null; // IP addresses not allowed
-        return value;
-      }
-
-      function isValidDomain(domain) {
-        return !!domain && /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(domain);
-      }
-
-      function showToast(message, type = 'info', duration = 3200) {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
-        toastContainer.appendChild(toast);
-        setTimeout(() => {
-          toast.style.opacity = '0';
-          toast.style.transition = 'opacity 0.3s';
-          setTimeout(() => toast.remove(), 300);
-        }, duration);
-      }
-
-      function setSyncStatus(text, colorClass = 'gray') {
-        syncStatus.innerHTML = `<span class="dot ${colorClass}"></span> ${text}`;
-      }
-
-      function showSaveIndicator(visible) {
-        saveIndicator.classList.toggle('hidden', !visible);
-      }
-
-      function setButtonLoading(button, loading, textWhileLoading) {
-        if (loading) {
-          button.dataset.originalText = button.textContent;
-          button.textContent = textWhileLoading || '...';
-          button.disabled = true;
-        } else {
-          if (button.dataset.originalText) {
-            button.textContent = button.dataset.originalText;
-            delete button.dataset.originalText;
-          }
-          button.disabled = false;
-        }
-      }
-
-      function sortDomains(arr) {
-        return arr.slice().sort((a, b) => a.localeCompare(b));
-      }
-
-      function updateSelectedCheckboxesFromDOM() {
-        selectedCheckboxes = new Set();
-        document.querySelectorAll('.domain-checkbox:checked').forEach(cb => {
-          selectedCheckboxes.add(cb.value);
-        });
-      }
-
-      function clearUndoState() {
-        if (undoTimeout) clearTimeout(undoTimeout);
-        undoTimeout = null;
-        lastDeletedDomains = [];
-        undoToast.style.display = 'none';
-      }
-
-      function setUndoState(deletedList) {
-        lastDeletedDomains = deletedList.slice();
-        undoToast.style.display = 'inline-flex';
-        if (undoTimeout) clearTimeout(undoTimeout);
-        undoTimeout = setTimeout(() => {
-          lastDeletedDomains = [];
-          undoToast.style.display = 'none';
-        }, 8000);
-      }
-
-      function restoreDeletedDomains() {
-        if (!lastDeletedDomains.length) return;
-        const restored = lastDeletedDomains.slice();
-        lastDeletedDomains = [];
-        undoToast.style.display = 'none';
-        if (undoTimeout) clearTimeout(undoTimeout);
-
-        const newDomains = sortDomains([...domains, ...restored]);
-        domains = newDomains;
-        renderDomainList();
-        persistDomainsToGitHub(false)
-          .then(() => {
-            showToast('Домены восстановлены', 'success');
-          })
-          .catch(() => {
-            showToast('Ошибка восстановления, обновите список', 'error');
-          });
-      }
-
-      // ========== GITHUB API FUNCTIONS ==========
-      function getAuthHeaders() {
-        const headers = { ...API_HEADERS_BASE };
-        if (token) headers['Authorization'] = 'Bearer ' + token;
-        return headers;
-      }
-
-      async function fetchFileContent() {
-        const url = `${API_URL}?ref=${BRANCH}&_=${Date.now()}-${Math.random()}`;
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: getAuthHeaders(),
-          cache: 'no-store'
-        });
-        if (!response.ok) {
-          throw new Error(await mapHttpError(response));
-        }
-        const data = await response.json();
-        if (!data || !data.content || !data.sha) {
-          throw new Error('Неверный формат ответа GitHub API');
-        }
-        return data;
-      }
-
-      async function mapHttpError(response) {
-        switch (response.status) {
-          case 401:
-            return 'GitHub Token недействителен';
-          case 403:
-            return 'Нет права Contents → Read and write';
-          case 404:
-            return 'Нет доступа к репозиторию или не найден domain.txt';
-          case 409:
-            return 'Файл изменился на GitHub. Нажмите "Обновить" и повторите';
-          default:
-            if (response.status >= 500) return 'Ошибка сервера GitHub';
-            return `HTTP ошибка ${response.status}`;
-        }
-      }
-
-      async function saveFileContent(textContent, sha) {
-        const contentBase64 = encodeBase64Utf8(textContent);
-        const body = {
-          message: 'Update domain.txt via panel',
-          content: contentBase64,
-          sha: sha,
-          branch: BRANCH
-        };
-        const response = await fetch(API_URL, {
-          method: 'PUT',
-          headers: {
-            ...getAuthHeaders(),
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(body)
-        });
-        if (!response.ok) {
-          let errorMessage = await mapHttpError(response);
-          try {
-            const errData = await response.json();
-            if (errData && errData.message) errorMessage += `: ${errData.message}`;
-          } catch (e) {}
-          throw new Error(errorMessage);
-        }
-        return await response.json();
-      }
-
-      async function loadDomainsFromGitHub() {
-        setButtonLoading(refreshBtn, true, '⏳');
-        setSyncStatus('загрузка...', 'amber');
-        try {
-          const data = await fetchFileContent();
-          const decoded = decodeBase64Utf8(data.content);
-          const lines = decoded.split(/\r?\n/);
-          const normalized = [];
-          for (let line of lines) {
-            const d = normalizeDomain(line);
-            if (d && isValidDomain(d)) normalized.push(d);
-          }
-          domains = sortDomains(Array.from(new Set(normalized)));
-          fileSha = data.sha;
-          setSyncStatus('синхронизировано', 'green');
-          renderDomainList();
-        } catch (err) {
-          setSyncStatus('ошибка', 'red');
-          console.error('Load error:', err);
-          showToast('Не удалось связаться с GitHub: ' + err.message, 'error');
-        } finally {
-          setButtonLoading(refreshBtn, false);
-        }
-      }
-
-      async function persistDomainsToGitHub(showLoading = true) {
-        if (showLoading) showSaveIndicator(true);
-        try {
-          const contentText = domains.join('\n') + (domains.length ? '\n' : '');
-          const result = await saveFileContent(contentText, fileSha);
-          fileSha = result.content?.sha || fileSha;
-          // After save, reload from GitHub to ensure sync
-          await loadDomainsFromGitHub();
-          setSyncStatus('синхронизировано', 'green');
-        } catch (err) {
-          setSyncStatus('ошибка', 'red');
-          throw err;
-        } finally {
-          if (showLoading) showSaveIndicator(false);
-        }
-      }
-
-      // ========== RENDER FUNCTIONS ==========
-      function renderDomainList() {
-        const filtered = domains.filter(d => d.includes(currentFilter.toLowerCase()));
-        totalCount.textContent = `Всего: ${domains.length} доменов`;
-
-        domainListContainer.innerHTML = '';
-        if (filtered.length === 0) {
-          domainListContainer.innerHTML = '<div style="padding:18px;text-align:center;color:var(--text-dim);">Нет доменов</div>';
-        }
-
-        filtered.forEach(domain => {
-          const item = document.createElement('div');
-          item.className = 'domain-item';
-          item.dataset.domain = domain;
-
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.className = 'domain-checkbox';
-          checkbox.value = domain;
-          checkbox.checked = selectedCheckboxes.has(domain);
-          checkbox.addEventListener('change', () => {
-            updateSelectedCheckboxesFromDOM();
-          });
-
-          const textSpan = document.createElement('span');
-          textSpan.className = 'domain-text';
-          textSpan.textContent = domain;
-
-          const actions = document.createElement('div');
-          actions.className = 'item-actions';
-
-          const editBtn = document.createElement('button');
-          editBtn.className = 'small-btn edit';
-          editBtn.textContent = 'Изменить';
-          editBtn.addEventListener('click', () => startEdit(domain, item));
-
-          const deleteBtn = document.createElement('button');
-          deleteBtn.className = 'small-btn delete';
-          deleteBtn.textContent = 'Удалить';
-          deleteBtn.addEventListener('click', () => deleteSingleDomain(domain));
-
-          actions.appendChild(editBtn);
-          actions.appendChild(deleteBtn);
-
-          item.appendChild(checkbox);
-          item.appendChild(textSpan);
-          item.appendChild(actions);
-          domainListContainer.appendChild(item);
-        });
-
-        updateSelectAllButtonText();
-        updateDeleteSelectedButtonState();
-        updateSelectedCheckboxesFromDOM();
-      }
-
-      function updateSelectAllButtonText() {
-        const visibleCheckboxes = document.querySelectorAll('.domain-checkbox');
-        const checkedVisible = document.querySelectorAll('.domain-checkbox:checked');
-        if (visibleCheckboxes.length === 0) {
-          selectAllBtn.textContent = 'Выбрать всё';
-          selectAllBtn.disabled = true;
-        } else if (checkedVisible.length === visibleCheckboxes.length) {
-          selectAllBtn.textContent = 'Снять выбор';
-          selectAllBtn.disabled = false;
-        } else {
-          selectAllBtn.textContent = 'Выбрать всё';
-          selectAllBtn.disabled = false;
-        }
-      }
-
-      function updateDeleteSelectedButtonState() {
-        const count = selectedCheckboxes.size;
-        deleteSelectedBtn.textContent = `Удалить выбранные${count ? ` (${count})` : ''}`;
-        deleteSelectedBtn.disabled = count === 0;
-      }
-
-      function startEdit(domain, itemElement) {
-        const textSpan = itemElement.querySelector('.domain-text');
-        const actionsDiv = itemElement.querySelector('.item-actions');
-        const oldText = domain;
-
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'input editing-input';
-        input.value = domain;
-
-        const saveBtn = document.createElement('button');
-        saveBtn.className = 'small-btn edit';
-        saveBtn.textContent = '✓';
-        const cancelBtn = document.createElement('button');
-        cancelBtn.className = 'small-btn';
-        cancelBtn.textContent = '×';
-
-        actionsDiv.innerHTML = '';
-        actionsDiv.appendChild(saveBtn);
-        actionsDiv.appendChild(cancelBtn);
-        textSpan.replaceWith(input);
-        input.focus();
-        input.select();
-
-        function finishEdit() {
-          input.replaceWith(textSpan);
-          textSpan.textContent = oldText;
-          actionsDiv.innerHTML = '';
-          const editBtn = document.createElement('button');
-          editBtn.className = 'small-btn edit';
-          editBtn.textContent = 'Изменить';
-          editBtn.addEventListener('click', () => startEdit(oldText, itemElement));
-          const deleteBtn = document.createElement('button');
-          deleteBtn.className = 'small-btn delete';
-          deleteBtn.textContent = 'Удалить';
-          deleteBtn.addEventListener('click', () => deleteSingleDomain(oldText));
-          actionsDiv.appendChild(editBtn);
-          actionsDiv.appendChild(deleteBtn);
-        }
-
-        saveBtn.addEventListener('click', async () => {
-          const newValue = normalizeDomain(input.value.trim());
-          if (!newValue || !isValidDomain(newValue)) {
-            showToast('Некорректный домен', 'error');
-            return;
-          }
-          if (domains.includes(newValue) && newValue !== oldText) {
-            showToast('Такой домен уже есть', 'error');
-            return;
-          }
-          const oldDomains = domains.slice();
-          const index = domains.indexOf(oldText);
-          if (index !== -1) domains[index] = newValue;
-          domains = sortDomains(Array.from(new Set(domains)));
-          renderDomainList();
-          showSaveIndicator(true);
-          try {
-            await persistDomainsToGitHub(false);
-            showToast('Домен обновлён', 'success');
-          } catch (err) {
-            domains = oldDomains.slice();
-            renderDomainList();
-            showToast('Ошибка сохранения: ' + err.message, 'error');
-          } finally {
-            showSaveIndicator(false);
-          }
-        });
-
-        cancelBtn.addEventListener('click', finishEdit);
-        input.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            saveBtn.click();
-          } else if (e.key === 'Escape') {
-            finishEdit();
-          }
-        });
-      }
-
-      async function deleteSingleDomain(domain) {
-        const oldDomains = domains.slice();
-        const deleted = [domain];
-        domains = domains.filter(d => d !== domain);
-        renderDomainList();
-        setUndoState(deleted);
-        showSaveIndicator(true);
-        try {
-          await persistDomainsToGitHub(false);
-          showToast('Домен удалён', 'success');
-          clearUndoState();
-        } catch (err) {
-          domains = oldDomains.slice();
-          renderDomainList();
-          setSyncStatus('ошибка', 'red');
-          showToast('Ошибка удаления: ' + err.message, 'error');
-          clearUndoState();
-        } finally {
-          showSaveIndicator(false);
-        }
-      }
-
-      async function deleteSelectedDomains() {
-        const selected = Array.from(selectedCheckboxes);
-        if (!selected.length) return;
-        if (!confirm(`Удалить ${selected.length} доменов?`)) return;
-
-        const oldDomains = domains.slice();
-        domains = domains.filter(d => !selected.includes(d));
-        renderDomainList();
-        setUndoState(selected);
-        showSaveIndicator(true);
-        try {
-          await persistDomainsToGitHub(false);
-          showToast('Домены удалены', 'success');
-          clearUndoState();
-        } catch (err) {
-          domains = oldDomains.slice();
-          renderDomainList();
-          setSyncStatus('ошибка', 'red');
-          showToast('Ошибка массового удаления: ' + err.message, 'error');
-          clearUndoState();
-        } finally {
-          showSaveIndicator(false);
-        }
-      }
-
-      async function addSingleDomain() {
-        const raw = addDomainInput.value.trim();
-        if (!raw) return;
-        const normalized = normalizeDomain(raw);
-        if (!normalized || !isValidDomain(normalized)) {
-          showToast('Некорректный домен', 'error');
-          return;
-        }
-        if (domains.includes(normalized)) {
-          showToast('Такой домен уже есть', 'error');
-          return;
-        }
-        const oldDomains = domains.slice();
-        domains = sortDomains([...domains, normalized]);
-        renderDomainList();
-        showSaveIndicator(true);
-        try {
-          await persistDomainsToGitHub(false);
-          addDomainInput.value = '';
-          showToast('Домен добавлен', 'success');
-        } catch (err) {
-          domains = oldDomains.slice();
-          renderDomainList();
-          setSyncStatus('ошибка', 'red');
-          showToast('Ошибка добавления: ' + err.message, 'error');
-        } finally {
-          showSaveIndicator(false);
-        }
-      }
-
-      async function bulkAddDomains() {
-        const rawText = bulkAddTextarea.value;
-        if (!rawText.trim()) return;
-        const parts = rawText.split(/[\n,;]+/);
-        const toAdd = [];
-        const errors = [];
-        const existing = [];
-        for (let part of parts) {
-          const norm = normalizeDomain(part);
-          if (!norm || !isValidDomain(norm)) {
-            errors.push(part);
-            continue;
-          }
-          if (domains.includes(norm)) {
-            existing.push(norm);
-          } else {
-            toAdd.push(norm);
-          }
-        }
-        const uniqueToAdd = Array.from(new Set(toAdd));
-        if (uniqueToAdd.length === 0) {
-          bulkResult.textContent = `Добавлено: 0 · уже были: ${existing.length} · ошибочных: ${errors.length}`;
-          return;
-        }
-        const oldDomains = domains.slice();
-        domains = sortDomains([...domains, ...uniqueToAdd]);
-        renderDomainList();
-        showSaveIndicator(true);
-        try {
-          await persistDomainsToGitHub(false);
-          bulkResult.textContent = `Добавлено: ${uniqueToAdd.length} · уже были: ${existing.length} · ошибочных: ${errors.length}`;
-          bulkAddTextarea.value = '';
-          showToast('Домены добавлены', 'success');
-        } catch (err) {
-          domains = oldDomains.slice();
-          renderDomainList();
-          setSyncStatus('ошибка', 'red');
-          showToast('Ошибка массового добавления: ' + err.message, 'error');
-          bulkResult.textContent = 'Ошибка сохранения';
-        } finally {
-          showSaveIndicator(false);
-        }
-      }
-
-      function handleSelectAll() {
-        const visibleCheckboxes = document.querySelectorAll('.domain-checkbox');
-        const allChecked = Array.from(visibleCheckboxes).every(cb => cb.checked);
-        visibleCheckboxes.forEach(cb => cb.checked = !allChecked);
-        updateSelectedCheckboxesFromDOM();
-        updateSelectAllButtonText();
-        updateDeleteSelectedButtonState();
-      }
-
-      // ========== TOKEN MANAGEMENT ==========
-      function updateTokenStatus() {
-        if (token) {
-          tokenStatus.textContent = 'GitHub Token · сохранён ✓';
-          tokenInput.value = token;
-        } else {
-          tokenStatus.textContent = 'GitHub Token · не задан';
-        }
-      }
-
-      function saveToken() {
-        const newToken = tokenInput.value.trim();
-        if (!newToken) {
-          showToast('Введите токен', 'error');
-          return;
-        }
-        token = newToken;
-        localStorage.setItem('forkop_token', token);
-        updateTokenStatus();
-        showToast('✓ Token сохранён', 'success');
-        // after token update, refresh data
-        loadDomainsFromGitHub().catch(() => {});
-      }
-
-      function deleteToken() {
-        token = '';
-        localStorage.removeItem('forkop_token');
-        tokenInput.value = '';
-        updateTokenStatus();
-        showToast('Токен удалён', 'info');
-      }
-
-      // ========== EVENT LISTENERS ==========
-      function setupEventListeners() {
-        refreshBtn.addEventListener('click', () => {
-          loadDomainsFromGitHub();
-        });
-
-        addBtn.addEventListener('click', addSingleDomain);
-        addDomainInput.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            addSingleDomain();
-          }
-        });
-
-        searchInput.addEventListener('input', () => {
-          currentFilter = searchInput.value.trim().toLowerCase();
-          renderDomainList();
-        });
-
-        selectAllBtn.addEventListener('click', handleSelectAll);
-
-        deleteSelectedBtn.addEventListener('click', deleteSelectedDomains);
-
-        bulkAddBtn.addEventListener('click', bulkAddDomains);
-
-        saveTokenBtn.addEventListener('click', saveToken);
-        deleteTokenBtn.addEventListener('click', deleteToken);
-
-        undoToast.addEventListener('click', () => {
-          restoreDeletedDomains();
-        });
-      }
-
-      // ========== INIT ==========
-      async function init() {
-        updateTokenStatus();
-        setupEventListeners();
-        // initial load
-        await loadDomainsFromGitHub();
-      }
-
-      init();
-    })();
-  </script>
+  <section class="card">
+    <div class="row">
+      <input id="newDomain" class="add-input" placeholder="Добавить домен…" autocomplete="off">
+      <button id="addBtn">Добавить</button>
+    </div>
+
+    <div class="controls">
+      <div class="searchWrap"><input id="search" class="search" placeholder="Поиск"></div>
+      <button id="deleteSelected" class="danger" disabled>Удалить выбранные</button>
+      <button id="selectAll" class="ghost">Выбрать всё</button>
+    </div>
+
+    <div class="count">
+      <span id="countText">Загрузка…</span>
+      <span id="syncText"></span>
+    </div>
+    <div class="small" style="padding-top:3px">Обновление читает <code>api.github.com</code> с принудительным обновлением, а не копию списка из браузера.</div>
+    <div id="status"></div>
+    <div id="list" class="list"></div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Добавить несколько доменов</summary>
+      <textarea id="bulk" placeholder="youtube.com
+googlevideo.com
+ytimg.com"></textarea>
+      <button id="bulkAdd" style="margin-top:8px;width:100%">Добавить всё</button>
+    </details>
+  </section>
+
+  <section class="card">
+  <details id="tokenDetails">
+    <summary>GitHub Token <span id="tokenState" class="small"></span></summary>
+    <div style="margin-top:9px">
+      <input id="token" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
+      <div class="row">
+        <button id="saveToken" style="margin-top:8px;flex:1">Сохранить Token</button>
+        <button id="clearToken" class="ghost" style="margin-top:8px">Удалить</button>
+      </div>
+      <div id="tokenMsg" class="small" style="margin-top:7px"></div>
+      <div class="note">
+        Token сохраняется локально в браузере (localStorage + резервная копия IndexedDB) и не записывается в GitHub.
+        Нужен Fine-grained token для <b>forkop-list</b> с <b>Contents → Read and write</b>.
+      </div>
+    </div>
+  </details>
+</section>
+</main>
+
+<div id="toastWrap" class="toast-wrap"></div>
+
+<script>
+const OWNER="nektopandroid-source", REPO="forkop-list", PATH="domain.txt", BRANCH="main";
+let domains=[], fileSha=null, saving=false, filter="", undoSnapshot=null;
+
+const $=id=>document.getElementById(id);
+
+function setStatus(text,type=""){ $("status").textContent=text; $("status").className=type; }
+function setSync(text,type=""){ $("syncText").textContent=text; $("syncText").className=type; }
+let cachedToken = "";
+
+async function readToken(){
+  if(cachedToken) return cachedToken;
+  try{
+    const ls = localStorage.getItem("forkop_github_token");
+    if(ls){ cachedToken = ls; return cachedToken; }
+  }catch(e){}
+  try{
+    const db = await new Promise((resolve,reject)=>{
+      const req=indexedDB.open("forkop-settings",1);
+      req.onupgradeneeded=()=>req.result.createObjectStore("kv");
+      req.onerror=()=>reject(req.error);
+      req.onsuccess=()=>resolve(req.result);
+    });
+    const value = await new Promise((resolve,reject)=>{
+      const tx=db.transaction("kv","readonly");
+      const req=tx.objectStore("kv").get("github_token");
+      req.onerror=()=>reject(req.error);
+      req.onsuccess=()=>resolve(req.result||"");
+    });
+    db.close();
+    if(value){ cachedToken=value; return cachedToken; }
+  }catch(e){}
+  return "";
+}
+async function saveTokenValue(value){
+  cachedToken=value;
+  let localOk=false;
+  try{
+    localStorage.setItem("forkop_github_token",value);
+    localOk = localStorage.getItem("forkop_github_token")===value;
+  }catch(e){}
+  let dbOk=false;
+  try{
+    const db = await new Promise((resolve,reject)=>{
+      const req=indexedDB.open("forkop-settings",1);
+      req.onupgradeneeded=()=>req.result.createObjectStore("kv");
+      req.onerror=()=>reject(req.error);
+      req.onsuccess=()=>resolve(req.result);
+    });
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction("kv","readwrite");
+      tx.objectStore("kv").put(value,"github_token");
+      tx.oncomplete=resolve;
+      tx.onerror=()=>reject(tx.error);
+    });
+    db.close();
+    dbOk=true;
+  }catch(e){}
+  if(!localOk && !dbOk) throw new Error("Браузер запрещает локальное хранение данных для этой страницы.");
+  return true;
+}
+async function removeStoredToken(){
+  cachedToken="";
+  try{ localStorage.removeItem("forkop_github_token"); }catch(e){}
+  try{
+    const db = await new Promise((resolve,reject)=>{
+      const req=indexedDB.open("forkop-settings",1);
+      req.onupgradeneeded=()=>req.result.createObjectStore("kv");
+      req.onerror=()=>reject(req.error);
+      req.onsuccess=()=>resolve(req.result);
+    });
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction("kv","readwrite");
+      tx.objectStore("kv").delete("github_token");
+      tx.oncomplete=resolve;
+      tx.onerror=()=>reject(tx.error);
+    });
+    db.close();
+  }catch(e){}
+}
+async function getTokenOrThrow(){
+  const t=await readToken();
+  if(!t) throw new Error("Сначала сохраните GitHub Token.");
+  return t;
+}
+function updateTokenState(has){
+  const h = typeof has==="boolean" ? has : !!cachedToken;
+  $("tokenState").textContent=h?" · сохранён ✓":" · не задан";
+  $("tokenState").className="small "+(h?"ok":"warn");
+}
+async function api(url,opt={}){
+  const t=await getTokenOrThrow();
+  const r=await fetch(url,{...opt,cache:"no-store",headers:{
+    Accept:"application/vnd.github+json",
+    Authorization:"Bearer "+t,
+    "X-GitHub-Api-Version":"2022-11-28",
+    ...(opt.headers||{})
+  }});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok){
+    if(r.status===401) throw new Error("Token недействителен.");
+    if(r.status===403) throw new Error("Нет права записи. Проверьте Contents → Read and write.");
+    if(r.status===404) throw new Error("Нет доступа к репозиторию или не найден domain.txt.");
+    if(r.status===409) throw new Error("Файл изменился на GitHub. Обновите список.");
+    throw new Error(d.message||("GitHub HTTP "+r.status));
+  }
+  return d;
+}
+function token(){
+  return cachedToken || "";
+}
+function normalize(v){
+  let d=(v||"").trim().toLowerCase();
+  d=d.replace(/^https?:\/\//,"").split("/")[0].replace(/^www\./,"").replace(/\.$/,"");
+  return d;
+}
+function validDomain(d){
+  return /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i.test(d);
+}
+function enc(s){
+  const bytes=new TextEncoder().encode(s);
+  let bin="";
+  for(const b of bytes) bin+=String.fromCharCode(b);
+  return btoa(bin);
+}
+function dec(s){
+  const b=atob((s||"").replace(/\n/g,""));
+  return new TextDecoder().decode(Uint8Array.from(b,c=>c.charCodeAt(0)));
+}
+async function fetchFile(){
+  const url =
+    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}&_=${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return api(url, {cache:"no-store"});
+}
+async function load(show=true){
+  $("refresh").disabled=true;
+  setSync("загрузка актуального списка…");
+  try{
+    const f = await fetchFile();
+    fileSha = f.sha;
+    const text = dec(f.content);
+
+    domains=[...new Set(
+      text.split(/\r?\n/).map(normalize).filter(Boolean)
+    )].sort((a,b)=>a.localeCompare(b));
+
+    render();
+    setSync("● синхронизировано с GitHub","ok");
+    if(show) setStatus("");
+  }catch(e){
+    setSync("ошибка","err");
+    setStatus(e.message,"err");
+    if(!token()) $("tokenDetails").open=true;
+  }finally{
+    $("refresh").disabled=false;
+  }
+}
+function render(){
+  filter=$("search").value.trim().toLowerCase();
+  const shown=domains.filter(d=>d.includes(filter));
+  $("countText").textContent=`${domains.length} доменов${filter?` · найдено ${shown.length}`:""}`;
+  $("list").innerHTML="";
+  if(!shown.length){ $("list").innerHTML='<div class="empty">Список пуст</div>'; updateSelection(); return; }
+  const frag=document.createDocumentFragment();
+  shown.forEach(d=>{
+    const row=document.createElement("div"); row.className="item";
+    const cb=document.createElement("input"); cb.type="checkbox"; cb.className="checkbox"; cb.dataset.domain=d;
+    const name=document.createElement("div"); name.className="domain"; name.textContent=d;
+    const edit=document.createElement("button"); edit.className="ghost icon-btn"; edit.textContent="Изменить";
+    edit.onclick=()=>startEdit(row,d);
+    const del=document.createElement("button"); del.className="danger icon-btn"; del.textContent="Удалить";
+    del.onclick=()=>deleteDomains([d]);
+    row.append(cb,name,edit,del); frag.appendChild(row);
+  });
+  $("list").appendChild(frag); updateSelection();
+}
+function updateSelection(){
+  const n=[...document.querySelectorAll(".checkbox:checked")].length;
+  $("deleteSelected").disabled=!n;
+  $("deleteSelected").textContent=n?`Удалить выбранные (${n})`:"Удалить выбранные";
+}
+function snapshot(){ return domains.slice(); }
+function toast(text, undoFn){
+  const wrap=$("toastWrap"); wrap.innerHTML="";
+  const t=document.createElement("div"); t.className="toast";
+  const s=document.createElement("span"); s.textContent=text; t.appendChild(s);
+  if(undoFn){ const b=document.createElement("button"); b.textContent="Отменить"; b.onclick=async()=>{wrap.innerHTML=""; await undoFn();}; t.appendChild(b); }
+  wrap.appendChild(t);
+  setTimeout(()=>{ if(wrap.contains(t)) wrap.innerHTML=""; },4500);
+}
+async function commit(message){
+  if(!fileSha) await load(false);
+  if(!fileSha) throw new Error("Не удалось получить текущую версию файла.");
+  saving=true; document.body.classList.add("busy"); setSync("сохранение…");
+  try{
+    const content=domains.length?domains.join("\n")+"\n":"";
+    const f=await api(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`,{
+      method:"PUT",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message,content:enc(content),sha:fileSha,branch:BRANCH})
+    });
+    fileSha=f.content.sha;
+    // Re-read from GitHub API so the visible list is the server copy.
+    await load(false);
+    setSync("● синхронизировано","ok");
+    return true;
+  }catch(e){
+    setSync("ошибка","err"); throw e;
+  }finally{saving=false; document.body.classList.remove("busy");}
+}
+async function deleteDomains(list){
+  if(saving||!list.length)return;
+  const old=snapshot(), set=new Set(list);
+  domains=domains.filter(d=>!set.has(d)); render();
+  setStatus("");
+  try{
+    await commit(list.length===1?`Delete ${list[0]}`:"Delete domains");
+    toast(list.length===1?`Удалён ${list[0]}`:`Удалено: ${list.length}`,async()=>{
+      domains=old; render();
+      try{await commit("Undo delete"); toast("Удаление отменено");}catch(e){setStatus(e.message,"err");}
+    });
+  }catch(e){
+    domains=old; render(); setStatus(e.message,"err");
+  }
+}
+function startEdit(row,old){
+  if(saving)return;
+  row.innerHTML="";
+  const input=document.createElement("input"); input.value=old; input.className="domain-edit";
+  const ok=document.createElement("button"); ok.textContent="✓"; ok.className="icon-btn";
+  const cancel=document.createElement("button"); cancel.textContent="×"; cancel.className="ghost icon-btn";
+  row.append(input,ok,cancel); input.focus(); input.select();
+  const cancelEdit=()=>render();
+  cancel.onclick=cancelEdit;
+  input.onkeydown=e=>{if(e.key==="Escape")cancelEdit(); if(e.key==="Enter")ok.click();};
+  ok.onclick=async()=>{
+    const nd=normalize(input.value);
+    if(!validDomain(nd)){setStatus("Некорректный домен.","err");return;}
+    if(nd!==old&&domains.includes(nd)){setStatus("Такой домен уже есть.","warn");return;}
+    const oldList=snapshot();
+    domains=domains.map(d=>d===old?nd:d).sort((a,b)=>a.localeCompare(b)); render();
+    try{
+      await commit(`Edit ${old} to ${nd}`);
+      toast(`Изменено: ${nd}`,async()=>{
+        domains=oldList; render();
+        try{await commit("Undo edit");toast("Изменение отменено")}catch(e){setStatus(e.message,"err")}
+      });
+    }catch(e){domains=oldList;render();setStatus(e.message,"err")}
+  };
+}
+async function addDomains(values){
+  if(saving)return;
+  const old=snapshot(), added=[];
+  for(const v of values){
+    const d=normalize(v);
+    if(d&&!domains.includes(d)&&validDomain(d)){domains.push(d);added.push(d);}
+  }
+  if(!added.length){setStatus("Новых корректных доменов не найдено.","warn");return;}
+  domains=[...new Set(domains)].sort((a,b)=>a.localeCompare(b)); render();
+  try{
+    await commit(added.length===1?`Add ${added[0]}`:"Add domains");
+    toast(added.length===1?`Добавлен ${added[0]}`:`Добавлено: ${added.length}`,async()=>{
+      domains=old; render();
+      try{await commit("Undo add");toast("Добавление отменено")}catch(e){setStatus(e.message,"err")}
+    });
+    setStatus("");
+  }catch(e){domains=old;render();setStatus(e.message,"err")}
+}
+$("addBtn").onclick=()=>{const v=$("newDomain").value;$("newDomain").value="";addDomains([v]);};
+$("newDomain").onkeydown=e=>{if(e.key==="Enter")$("addBtn").click();};
+$("search").oninput=render;
+$("refresh").onclick=()=>load(true);
+$("list").onchange=updateSelection;
+$("deleteSelected").onclick=()=>{
+  const xs=[...document.querySelectorAll(".checkbox:checked")].map(x=>x.dataset.domain);
+  if(xs.length)deleteDomains(xs);
+};
+$("selectAll").onclick=()=>{
+  const boxes=[...document.querySelectorAll(".checkbox")];
+  const allChecked=boxes.length&&boxes.every(x=>x.checked);
+  boxes.forEach(x=>x.checked=!allChecked); updateSelection();
+  $("selectAll").textContent=allChecked?"Выбрать всё":"Снять выбор";
+};
+$("bulkAdd").onclick=()=>{
+  const v=$("bulk").value.split(/[,\n;]+/).map(x=>x.trim()).filter(Boolean);
+  $("bulk").value=""; addDomains(v);
+};
+$("saveToken").onclick=async()=>{
+  const t=$("token").value.trim();
+  if(!t){
+    $("tokenMsg").textContent="Введите Token.";
+    $("tokenMsg").className="small err";
+    return;
+  }
+
+  $("saveToken").disabled=true;
+  $("tokenMsg").textContent="Сохраняю Token…";
+  $("tokenMsg").className="small";
+
+  try{
+    await saveTokenValue(t);
+    updateTokenState(true);
+
+    // Verify both token and repository access.
+    const f=await fetchFile();
+    fileSha=f.sha;
+    domains=[...new Set(
+      dec(f.content).split(/\r?\n/).map(normalize).filter(Boolean)
+    )].sort((a,b)=>a.localeCompare(b));
+
+    render();
+    setSync("● подключено к GitHub","ok");
+    setStatus("");
+    $("tokenMsg").textContent="✓ Token сохранён и доступ к GitHub работает.";
+    $("tokenMsg").className="small ok";
+  }catch(e){
+    // Keep the token saved even when the verification request fails.
+    updateTokenState(true);
+    $("tokenMsg").textContent="✓ Token сохранён. Ошибка проверки GitHub: "+e.message;
+    $("tokenMsg").className="small warn";
+  }finally{
+    $("saveToken").disabled=false;
+  }
+};
+$("clearToken").onclick=async()=>{
+  await removeStoredToken();
+  $("token").value="";
+  updateTokenState(false);
+  $("tokenMsg").textContent="Token удалён из браузера.";
+  $("tokenMsg").className="small ok";
+  domains=[]; fileSha=null; render(); setSync("");
+};
+(async()=>{
+  cachedToken = await readToken();
+  $("token").value = cachedToken;
+  updateTokenState(!!cachedToken);
+  render();
+  if(cachedToken) await load(true);
+  else {
+    setSync("");
+    setStatus("Укажите GitHub Token ниже.","warn");
+    $("tokenDetails").open=true;
+  }
+})();
+</script>
 </body>
 </html>
