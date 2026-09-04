@@ -219,9 +219,10 @@ function idbDeleteToken(){
 }
 function loadStoredToken(){
   var t="";
-  try{t=localStorage.getItem(LS_KEY)||"";}catch(e){t="";}
+  try{t=(localStorage.getItem(LS_KEY)||"").trim();}catch(e){t="";}
   if(t){cachedToken=t;updateTokenStatus();return Promise.resolve(t);}
   return idbGetToken().then(function(v){
+    v=String(v||"").trim();
     if(v){cachedToken=v;try{localStorage.setItem(LS_KEY,v);}catch(e){}}
     updateTokenStatus();
     return cachedToken;
@@ -301,7 +302,9 @@ function fetchFileFromGitHub(){
     return {domains:domains,sha:sha};
   }).catch(function(err){
     if(err&&err.status)throw err;
-    throw {status:0,message:"Не удалось связаться с GitHub"};
+    var detail="";
+    try{detail=err&&err.message?(": "+err.message):"";}catch(e){}
+    throw {status:0,message:"Не удалось связаться с GitHub"+detail+" — проверь блокировщик рекламы/антивирус и открой API в этом же браузере"};
   });
 }
 function pushDomainsToGitHub(list,message){
@@ -323,7 +326,9 @@ function pushDomainsToGitHub(list,message){
     return json;
   }).catch(function(err){
     if(err&&err.status)throw err;
-    throw {status:0,message:"Не удалось связаться с GitHub"};
+    var detail2="";
+    try{detail2=err&&err.message?(": "+err.message):"";}catch(e){}
+    throw {status:0,message:"Не удалось связаться с GitHub"+detail2};
   });
 }
 function commitAndResync(newList,message){
