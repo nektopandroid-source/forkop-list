@@ -2,474 +2,640 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0f1115">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Forkop — домены</title>
 <style>
+:root{--bg:#0f1115;--card:#171b22;--card2:#1e242e;--border:#2a323f;--text:#e8ecf1;--muted:#9aa4b2;--blue:#2f81f7;--blue-h:#1f6feb;--red:#da3633;--red-h:#b62324;--green:#3fb950;--gray:#30363d;--radius:12px}
 *{box-sizing:border-box}
-:root{
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  color-scheme:dark;
-  --bg:#0f1115;--card:#181b22;--line:#2c313b;--muted:#99a1ae;
-  --accent:#3675f5;--danger:#c94b57;--ok:#57c98a;--input:#101218
-}
-html,body{margin:0;background:var(--bg);color:#f5f7fa}
-body{min-height:100vh}
-main{max-width:780px;margin:auto;padding:12px 12px 40px}
-.header{position:sticky;top:0;z-index:5;background:linear-gradient(var(--bg) 80%,transparent);padding:6px 0 14px}
-.title{display:flex;align-items:center;justify-content:space-between;gap:10px}
-h1{font-size:22px;line-height:1.1;margin:0}
-.sub{font-size:12px;color:var(--muted);margin-top:4px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:11px;margin-bottom:11px}
-.row{display:flex;gap:8px}
-input,textarea,button{font:inherit;border-radius:11px}
-input,textarea{background:var(--input);border:1px solid #39404b;color:#fff;padding:11px 12px;outline:none}
-input:focus,textarea:focus{border-color:#5c89ff}
-button{border:0;padding:10px 13px;background:var(--accent);color:#fff;font-weight:650;cursor:pointer}
-button:disabled{opacity:.5;cursor:default}
-.ghost{background:#252a33}
-.danger{background:var(--danger)}
-.small{font-size:12px;color:var(--muted)}
-.add-input{flex:1;min-width:0}
-.search{width:100%}
-.controls{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:8px}
-.count{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:12px;padding:4px 1px 0}
-.list{margin-top:6px}
-.item{display:flex;align-items:center;gap:9px;padding:8px 2px;border-bottom:1px solid var(--line)}
-.item:last-child{border-bottom:0}
-.checkbox{width:18px;height:18px;flex:0 0 auto;accent-color:var(--accent)}
-.domain{flex:1;min-width:0;font-size:14px;overflow-wrap:anywhere}
-.domain-edit{flex:1;min-width:0}
-.icon-btn{padding:7px 9px;font-size:13px}
-.empty{text-align:center;padding:30px 8px;color:#7e8795}
-.busy{opacity:.65;pointer-events:none}
-.toast-wrap{position:fixed;left:0;right:0;bottom:14px;z-index:20;display:flex;justify-content:center;padding:0 12px;pointer-events:none}
-.toast{background:#252a33;border:1px solid #414854;box-shadow:0 8px 30px #0007;color:#fff;border-radius:12px;padding:10px 12px;font-size:13px;display:flex;gap:10px;align-items:center;max-width:700px;pointer-events:auto}
-.toast button{padding:7px 10px;background:#3a414c;font-size:12px}
-#status{min-height:18px;padding-top:5px;font-size:12px}
-.ok{color:var(--ok)}.err{color:#ff939c}.warn{color:#ffd27a}
-details summary{cursor:pointer;font-weight:650}
-textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
-.note{font-size:11px;line-height:1.4;color:#858e9c;margin-top:8px}
-.tokenrow{margin-top:9px}
-@media(max-width:620px){
-  .controls{grid-template-columns:1fr 1fr}
-  .controls .searchWrap{grid-column:1/-1}
-  .controls button{width:100%}
-}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:rgba(15,17,21,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.top h1{margin:0;font-size:18px}
+.sub{color:var(--muted);font-size:12.5px;margin-top:2px;word-break:break-all}
+main{max-width:760px;margin:0 auto;padding:16px 14px 60px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin:12px 0}
+.row-flex{display:flex;gap:8px}
+input[type=text],input[type=password],input[type=search],textarea{background:#0d1117;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px 12px;width:100%;outline:none}
+input:focus,textarea:focus{border-color:var(--blue)}
+textarea{min-height:110px;resize:vertical;font-family:inherit}
+button{border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#fff;background:var(--gray);transition:filter .15s}
+button:hover{filter:brightness(1.12)}
+button:disabled{opacity:.55;cursor:not-allowed}
+.btn-blue{background:var(--blue)}
+.btn-red{background:var(--red)}
+.btn-ghost{background:#262d38}
+.btn-small{padding:6px 10px;font-size:13px;border-radius:8px}
+#statusBar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;margin:4px 2px}
+#syncDot{width:9px;height:9px;border-radius:50%;background:#8b949e;display:inline-block}
+#syncDot.ok{background:var(--green);box-shadow:0 0 8px rgba(63,185,80,.7)}
+#syncDot.warn{background:#d29922}
+#syncDot.err{background:var(--red)}
+#errorBox{background:#3d1112;border:1px solid #7a2323;color:#ffb4ae;border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13.5px;word-break:break-word}
+#domainList{max-height:460px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;background:#0d1117;margin-top:10px}
+.drow{display:flex;align-items:center;gap:8px;padding:9px 10px;border-bottom:1px solid #1d232d}
+.drow:last-child{border-bottom:0}
+.drow:hover{background:#131922}
+.dname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dactions{display:flex;gap:6px;flex-shrink:0}
+.empty{padding:18px;text-align:center;color:var(--muted)}
+#undoBar{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#14231a;border:1px solid #2ea04355;border-radius:10px;padding:8px 10px;margin-top:10px;font-size:13.5px}
+#toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:50;display:flex;flex-direction:column;gap:8px;width:min(92vw,480px)}
+.toast{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13.5px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.toast.ok{border-color:#2ea043}.toast.err{border-color:#7a2323}
+details.card summary{cursor:pointer;font-weight:700}
+.muted{color:var(--muted);font-size:12.5px;word-break:break-all}
+@media(max-width:560px){.row-flex{flex-direction:column}.dactions{width:100%}.dactions button{flex:1}}
 </style>
 </head>
 <body>
+<header class="top">
+<div>
+<h1>Forkop — домены</h1>
+<div class="sub">nektopandroid-source / forkop-list / domain.txt</div>
+</div>
+<button id="btnRefresh" class="btn-ghost" type="button">↻ Обновить</button>
+</header>
 <main>
-  <div class="header">
-    <div class="title">
-      <div>
-        <h1>Forkop — домены</h1>
-        <div class="sub">nektopandroid-source / forkop-list / domain.txt · панель v10</div>
-      </div>
-      <button id="refresh" class="ghost" title="Загрузить актуальный domain.txt с GitHub">↻</button>
-    </div>
-  </div>
-
-  <section class="card">
-    <div class="row">
-      <input id="newDomain" class="add-input" placeholder="Добавить домен…" autocomplete="off">
-      <button id="addBtn">Добавить</button>
-    </div>
-
-    <div class="controls">
-      <div class="searchWrap"><input id="search" class="search" placeholder="Поиск"></div>
-      <button id="deleteSelected" class="danger" disabled>Удалить выбранные</button>
-      <button id="selectAll" class="ghost">Выбрать всё</button>
-    </div>
-
-    <div class="count">
-      <span id="countText">Загрузка…</span>
-      <span id="syncText"></span>
-    </div>
-    <div class="small" style="padding-top:3px">Обновление читает <code>api.github.com</code> с принудительным обновлением, а не копию списка из браузера.</div>
-    <div id="status"></div>
-    <div id="list" class="list"></div>
-  </section>
-
-  <section class="card">
-    <details>
-      <summary>Добавить несколько доменов</summary>
-      <textarea id="bulk" placeholder="youtube.com
-googlevideo.com
-ytimg.com"></textarea>
-      <button id="bulkAdd" style="margin-top:8px;width:100%">Добавить всё</button>
-    </details>
-  </section>
-
-  <section class="card">
-  <details id="tokenDetails">
-    <summary>GitHub Token <span id="tokenState" class="small"></span></summary>
-    <div style="margin-top:9px">
-      <input id="token" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
-      <div class="row">
-        <button id="saveToken" style="margin-top:8px;flex:1">Сохранить Token</button>
-        <button id="clearToken" class="ghost" style="margin-top:8px">Удалить</button>
-      </div>
-      <div id="tokenMsg" class="small" style="margin-top:7px"></div>
-      <div class="note">
-        Token сохраняется локально в браузере (localStorage + резервная копия IndexedDB) и не записывается в GitHub.
-        Нужен Fine-grained token для <b>forkop-list</b> с <b>Contents → Read and write</b>.
-      </div>
-    </div>
-  </details>
+<div id="statusBar">
+<span id="syncDot"></span>
+<span id="syncText">загрузка...</span>
+<span id="totalCount">Всего: 0 доменов</span>
+<span id="busyInd"></span>
+</div>
+<div id="errorBox" hidden></div>
+<section class="card">
+<div class="row-flex">
+<input id="addInput" type="text" placeholder="Добавить домен..." autocomplete="off" spellcheck="false">
+<button id="btnAdd" class="btn-blue" type="button">Добавить</button>
+</div>
 </section>
+<section class="card">
+<input id="searchInput" type="search" placeholder="Поиск" autocomplete="off">
+<div class="row-flex" style="margin-top:10px">
+<button id="btnBulkDelete" class="btn-red" type="button">Удалить выбранные</button>
+<button id="btnSelectAll" class="btn-ghost" type="button">Выбрать всё</button>
+</div>
+<div id="domainList"></div>
+<div id="undoBar" hidden>
+<span id="undoText">Удалено</span>
+<button id="btnUndo" class="btn-ghost btn-small" type="button">Отменить</button>
+</div>
+</section>
+<details class="card" id="bulkDetails">
+<summary>Добавить несколько доменов</summary>
+<div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+<textarea id="bulkText" placeholder="youtube.com&#10;googlevideo.com&#10;ytimg.com"></textarea>
+<button id="btnBulkAdd" class="btn-blue" type="button">Добавить всё</button>
+<div id="bulkStats" class="muted"></div>
+</div>
+</details>
+<details class="card" id="tokenDetails">
+<summary>GitHub Token</summary>
+<div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+<input id="tokenInput" type="password" placeholder="ghp_... / github_pat_..." autocomplete="off">
+<div class="row-flex">
+<button id="btnTokenSave" class="btn-blue" type="button">Сохранить Token</button>
+<button id="btnTokenDelete" class="btn-ghost" type="button">Удалить</button>
+</div>
+<div id="tokenStatus" class="muted">GitHub Token · не задан</div>
+<div class="muted">Права: forkop-list → Contents → Read and write. Токен хранится только в этом браузере (localStorage + IndexedDB).<br>Raw для Forkop: https://raw.githubusercontent.com/nektopandroid-source/forkop-list/main/domain.txt</div>
+</div>
+</details>
 </main>
-
-<div id="toastWrap" class="toast-wrap"></div>
-
+<div id="toasts"></div>
 <script>
-const OWNER="nektopandroid-source", REPO="forkop-list", PATH="domain.txt", BRANCH="main";
-let domains=[], fileSha=null, saving=false, filter="", undoSnapshot=null;
-
-const $=id=>document.getElementById(id);
-
-function setStatus(text,type=""){ $("status").textContent=text; $("status").className=type; }
-function setSync(text,type=""){ $("syncText").textContent=text; $("syncText").className=type; }
-let cachedToken = "";
-
-async function readToken(){
-  if(cachedToken) return cachedToken;
-  try{
-    const ls = localStorage.getItem("forkop_github_token");
-    if(ls){ cachedToken = ls; return cachedToken; }
-  }catch(e){}
-  try{
-    const db = await new Promise((resolve,reject)=>{
-      const req=indexedDB.open("forkop-settings",1);
-      req.onupgradeneeded=()=>req.result.createObjectStore("kv");
-      req.onerror=()=>reject(req.error);
-      req.onsuccess=()=>resolve(req.result);
-    });
-    const value = await new Promise((resolve,reject)=>{
-      const tx=db.transaction("kv","readonly");
-      const req=tx.objectStore("kv").get("github_token");
-      req.onerror=()=>reject(req.error);
-      req.onsuccess=()=>resolve(req.result||"");
-    });
-    db.close();
-    if(value){ cachedToken=value; return cachedToken; }
-  }catch(e){}
-  return "";
-}
-async function saveTokenValue(value){
-  cachedToken=value;
-  let localOk=false;
-  try{
-    localStorage.setItem("forkop_github_token",value);
-    localOk = localStorage.getItem("forkop_github_token")===value;
-  }catch(e){}
-  let dbOk=false;
-  try{
-    const db = await new Promise((resolve,reject)=>{
-      const req=indexedDB.open("forkop-settings",1);
-      req.onupgradeneeded=()=>req.result.createObjectStore("kv");
-      req.onerror=()=>reject(req.error);
-      req.onsuccess=()=>resolve(req.result);
-    });
-    await new Promise((resolve,reject)=>{
-      const tx=db.transaction("kv","readwrite");
-      tx.objectStore("kv").put(value,"github_token");
-      tx.oncomplete=resolve;
-      tx.onerror=()=>reject(tx.error);
-    });
-    db.close();
-    dbOk=true;
-  }catch(e){}
-  if(!localOk && !dbOk) throw new Error("Браузер запрещает локальное хранение данных для этой страницы.");
-  return true;
-}
-async function removeStoredToken(){
-  cachedToken="";
-  try{ localStorage.removeItem("forkop_github_token"); }catch(e){}
-  try{
-    const db = await new Promise((resolve,reject)=>{
-      const req=indexedDB.open("forkop-settings",1);
-      req.onupgradeneeded=()=>req.result.createObjectStore("kv");
-      req.onerror=()=>reject(req.error);
-      req.onsuccess=()=>resolve(req.result);
-    });
-    await new Promise((resolve,reject)=>{
-      const tx=db.transaction("kv","readwrite");
-      tx.objectStore("kv").delete("github_token");
-      tx.oncomplete=resolve;
-      tx.onerror=()=>reject(tx.error);
-    });
-    db.close();
-  }catch(e){}
-}
-async function getTokenOrThrow(){
-  const t=await readToken();
-  if(!t) throw new Error("Сначала сохраните GitHub Token.");
-  return t;
-}
-function updateTokenState(has){
-  const h = typeof has==="boolean" ? has : !!cachedToken;
-  $("tokenState").textContent=h?" · сохранён ✓":" · не задан";
-  $("tokenState").className="small "+(h?"ok":"warn");
-}
-async function api(url,opt={}){
-  const t=await getTokenOrThrow();
-  const r=await fetch(url,{...opt,cache:"no-store",headers:{
-    Accept:"application/vnd.github+json",
-    Authorization:"Bearer "+t,
-    "X-GitHub-Api-Version":"2022-11-28",
-    ...(opt.headers||{})
-  }});
-  const d=await r.json().catch(()=>({}));
-  if(!r.ok){
-    if(r.status===401) throw new Error("Token недействителен.");
-    if(r.status===403) throw new Error("Нет права записи. Проверьте Contents → Read and write.");
-    if(r.status===404) throw new Error("Нет доступа к репозиторию или не найден domain.txt.");
-    if(r.status===409) throw new Error("Файл изменился на GitHub. Обновите список.");
-    throw new Error(d.message||("GitHub HTTP "+r.status));
-  }
-  return d;
-}
-function token(){
-  return cachedToken || "";
-}
-function normalize(v){
-  let d=(v||"").trim().toLowerCase();
-  d=d.replace(/^https?:\/\//,"").split("/")[0].replace(/^www\./,"").replace(/\.$/,"");
-  return d;
-}
-function validDomain(d){
-  return /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i.test(d);
-}
-function enc(s){
-  const bytes=new TextEncoder().encode(s);
-  let bin="";
-  for(const b of bytes) bin+=String.fromCharCode(b);
+"use strict";
+function encodeBase64Utf8(text){
+  var bytes=new TextEncoder().encode(String(text==null?"":text));
+  var bin="";
+  for(var i=0;i<bytes.length;i++){bin+=String.fromCharCode(bytes[i]);}
   return btoa(bin);
 }
-function dec(s){
-  const b=atob((s||"").replace(/\n/g,""));
-  return new TextDecoder().decode(Uint8Array.from(b,c=>c.charCodeAt(0)));
+function decodeBase64Utf8(base64){
+  var clean=String(base64==null?"":base64).replace(/\s/g,"");
+  if(!clean){return "";}
+  var bin=atob(clean);
+  var bytes=new Uint8Array(bin.length);
+  for(var j=0;j<bin.length;j++){bytes[j]=bin.charCodeAt(j);}
+  return new TextDecoder("utf-8").decode(bytes);
 }
-async function fetchFile(){
-  const url =
-    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}&_=${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  return api(url, {cache:"no-store"});
+var OWNER="nektopandroid-source",REPO="forkop-list",BRANCH="main",FILEPATH="domain.txt";
+var API_URL="https://api.github.com/repos/"+OWNER+"/"+REPO+"/contents/"+FILEPATH;
+var LS_KEY="forkop_gh_token";
+var IDB_DB="forkop-panel",IDB_STORE="kv",IDB_KEY="gh_token";
+var domains=[],fileSha=null,selected=new Set(),searchQuery="";
+var editingDomain=null,busy=false,cachedToken="";
+var lastUndo=null,undoTimer=null;
+var elRefresh,elAddInput,elBtnAdd,elSearch,elBulkDelete,elSelectAll,elTotal,elDot,elSyncText,elBusy,elError,elList,elUndoBar,elUndoText,elBtnUndo,elBulkText,elBtnBulkAdd,elBulkStats,elTokenInput,elBtnTokenSave,elBtnTokenDelete,elTokenStatus,elToasts;
+function $(id){return document.getElementById(id);}
+function initDom(){
+  elRefresh=$("btnRefresh");elAddInput=$("addInput");elBtnAdd=$("btnAdd");
+  elSearch=$("searchInput");elBulkDelete=$("btnBulkDelete");elSelectAll=$("btnSelectAll");
+  elTotal=$("totalCount");elDot=$("syncDot");elSyncText=$("syncText");elBusy=$("busyInd");
+  elError=$("errorBox");elList=$("domainList");elUndoBar=$("undoBar");elUndoText=$("undoText");elBtnUndo=$("btnUndo");
+  elBulkText=$("bulkText");elBtnBulkAdd=$("btnBulkAdd");elBulkStats=$("bulkStats");
+  elTokenInput=$("tokenInput");elBtnTokenSave=$("btnTokenSave");elBtnTokenDelete=$("btnTokenDelete");elTokenStatus=$("tokenStatus");
+  elToasts=$("toasts");
 }
-async function load(show=true){
-  $("refresh").disabled=true;
-  setSync("загрузка актуального списка…");
-  try{
-    const f = await fetchFile();
-    fileSha = f.sha;
-    const text = dec(f.content);
-
-    domains=[...new Set(
-      text.split(/\r?\n/).map(normalize).filter(Boolean)
-    )].sort((a,b)=>a.localeCompare(b));
-
-    render();
-    setSync("● синхронизировано с GitHub","ok");
-    if(show) setStatus("");
-  }catch(e){
-    setSync("ошибка","err");
-    setStatus(e.message,"err");
-    if(!token()) $("tokenDetails").open=true;
-  }finally{
-    $("refresh").disabled=false;
+function normalizeDomain(input){
+  if(input==null)return null;
+  var s=String(input).trim().toLowerCase();
+  if(!s)return null;
+  s=s.replace(/^[a-z0-9+.\-]+:\/\//,"");
+  s=s.replace(/^\/\//,"");
+  s=(s.split(/[\s\/\?#]+/)[0]||"");
+  s=(s.split(":")[0]||"");
+  s=s.replace(/^\.+/,"").replace(/\.+$/,"");
+  if(!s||s.length>253)return null;
+  if(s.indexOf(" ")>=0||s.indexOf("_")>=0||s.indexOf("@")>=0)return null;
+  if(s.indexOf(".")<0)return null;
+  if(s.indexOf("..")>=0)return null;
+  if(s.indexOf("www.")===0)s=s.slice(4);
+  if(!s)return null;
+  var labels=s.split(".");
+  for(var i=0;i<labels.length;i++){
+    var lb=labels[i];
+    if(!lb||lb.length>63)return null;
+    if(lb.charAt(0)==="-"||lb.charAt(lb.length-1)==="-")return null;
+    if(!/^[a-z0-9\u00a1-\uffff\-]+$/i.test(lb))return null;
   }
+  var tld=labels[labels.length-1];
+  if(tld.length<2)return null;
+  if(/^\d+$/.test(tld))return null;
+  return s;
+}
+function sortUnique(list){
+  var seen={},out=[];
+  for(var i=0;i<list.length;i++){var d=list[i];if(d&&!seen[d]){seen[d]=1;out.push(d);}}
+  out.sort(function(a,b){return a<b?-1:(a>b?1:0);});
+  return out;
+}
+function parseBulkText(text){return String(text||"").split(/[\n,;]+/);}
+function getToken(){return cachedToken||"";}
+function idbOpen(){
+  return new Promise(function(res,rej){
+    try{
+      var r=indexedDB.open(IDB_DB,1);
+      r.onupgradeneeded=function(){try{r.result.createObjectStore(IDB_STORE);}catch(e){}};
+      r.onsuccess=function(){res(r.result);};
+      r.onerror=function(){rej(r.error);};
+    }catch(e){rej(e);}
+  });
+}
+function idbSetToken(t){
+  return idbOpen().then(function(db){
+    return new Promise(function(res,rej){
+      try{
+        var tx=db.transaction(IDB_STORE,"readwrite");
+        tx.objectStore(IDB_STORE).put(t,IDB_KEY);
+        tx.oncomplete=function(){try{db.close();}catch(e){}res(true);};
+        tx.onerror=function(){try{db.close();}catch(e){}rej(tx.error);};
+      }catch(e){try{db.close();}catch(x){}rej(e);}
+    });
+  });
+}
+function idbGetToken(){
+  return idbOpen().then(function(db){
+    return new Promise(function(res){
+      try{
+        var tx=db.transaction(IDB_STORE,"readonly");
+        var q=tx.objectStore(IDB_STORE).get(IDB_KEY);
+        q.onsuccess=function(){var v=q.result||"";try{db.close();}catch(e){}res(v);};
+        q.onerror=function(){try{db.close();}catch(e){}res("");};
+      }catch(e){try{db.close();}catch(x){}res("");}
+    });
+  }).catch(function(){return "";});
+}
+function idbDeleteToken(){
+  return idbOpen().then(function(db){
+    return new Promise(function(res){
+      try{
+        var tx=db.transaction(IDB_STORE,"readwrite");
+        tx.objectStore(IDB_STORE).delete(IDB_KEY);
+        tx.oncomplete=function(){try{db.close();}catch(e){}res(true);};
+        tx.onerror=function(){try{db.close();}catch(e){}res(false);};
+      }catch(e){try{db.close();}catch(x){}res(false);}
+    });
+  }).catch(function(){return false;});
+}
+function loadStoredToken(){
+  var t="";
+  try{t=localStorage.getItem(LS_KEY)||"";}catch(e){t="";}
+  if(t){cachedToken=t;updateTokenStatus();return Promise.resolve(t);}
+  return idbGetToken().then(function(v){
+    if(v){cachedToken=v;try{localStorage.setItem(LS_KEY,v);}catch(e){}}
+    updateTokenStatus();
+    return cachedToken;
+  });
+}
+function persistToken(t){
+  cachedToken=t;
+  try{localStorage.setItem(LS_KEY,t);}catch(e){}
+  return idbSetToken(t).catch(function(){return false;}).then(function(){updateTokenStatus();});
+}
+function clearStoredToken(){
+  cachedToken="";
+  try{localStorage.removeItem(LS_KEY);}catch(e){}
+  return idbDeleteToken().then(function(){updateTokenStatus();});
+}
+function updateTokenStatus(){
+  if(!elTokenStatus)return;
+  if(getToken())elTokenStatus.textContent="GitHub Token · сохранён ✓";
+  else elTokenStatus.textContent="GitHub Token · не задан";
+}
+function showToast(msg,type){
+  var d=document.createElement("div");
+  d.className="toast "+(type||"");
+  d.textContent=String(msg);
+  elToasts.appendChild(d);
+  setTimeout(function(){try{elToasts.removeChild(d);}catch(e){}},3200);
+}
+function showError(msg){elError.hidden=false;elError.textContent=String(msg);}
+function clearError(){elError.hidden=true;elError.textContent="";}
+function setSyncState(state,msg){
+  elDot.className="";
+  elDot.id="syncDot";
+  if(state==="ok")elDot.classList.add("ok");
+  else if(state==="error")elDot.classList.add("err");
+  else elDot.classList.add("warn");
+  elSyncText.textContent=msg;
+}
+function setBusy(flag,what){
+  busy=flag;
+  var btns=[elBtnAdd,elBtnBulkAdd,elBulkDelete,elRefresh,elSelectAll,elBtnTokenSave];
+  for(var i=0;i<btns.length;i++){if(btns[i])btns[i].disabled=flag;}
+  elBusy.textContent=flag?(" · "+(what||"Сохраняю...")):"";
+}
+function apiHeaders(){
+  var h={"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28","Cache-Control":"no-cache"};
+  var t=getToken();
+  if(t)h["Authorization"]="Bearer "+t;
+  return h;
+}
+function githubErrorMessage(status,fallback){
+  if(status===401)return "GitHub Token недействителен";
+  if(status===403)return "Нет права Contents → Read and write";
+  if(status===404)return "Нет доступа к репозиторию или не найден domain.txt";
+  if(status===409)return "Файл изменился на GitHub. Нажмите \"Обновить\" и повторите";
+  if(status===422)return "GitHub отклонил изменение (422)";
+  return fallback||("Ошибка GitHub: "+status);
+}
+function fetchFileFromGitHub(){
+  var url=API_URL+"?ref="+encodeURIComponent(BRANCH)+"&_="+Date.now()+"-"+Math.random();
+  return fetch(url,{method:"GET",headers:apiHeaders(),cache:"no-store"}).then(function(resp){
+    if(!resp.ok){
+      return resp.text().then(function(){throw {status:resp.status,message:githubErrorMessage(resp.status)};});
+    }
+    return resp.json();
+  }).then(function(json){
+    var sha=json.sha||null;
+    var text=decodeBase64Utf8(json.content||"");
+    var lines=text.split(/\r?\n/);
+    var arr=[];
+    for(var i=0;i<lines.length;i++){var n=normalizeDomain(lines[i]);if(n)arr.push(n);}
+    arr=sortUnique(arr);
+    fileSha=sha;
+    domains=arr;
+    var keep=new Set();
+    for(var k=0;k<domains.length;k++){if(selected.has(domains[k]))keep.add(domains[k]);}
+    selected=keep;
+    return {domains:domains,sha:sha};
+  }).catch(function(err){
+    if(err&&err.status)throw err;
+    throw {status:0,message:"Не удалось связаться с GitHub"};
+  });
+}
+function pushDomainsToGitHub(list,message){
+  var text=list.length?list.join("\n")+"\n":"";
+  var body={message:message,content:encodeBase64Utf8(text),branch:BRANCH};
+  if(fileSha)body.sha=fileSha;
+  return fetch(API_URL,{method:"PUT",headers:Object.assign({"Content-Type":"application/json"},apiHeaders()),body:JSON.stringify(body)}).then(function(resp){
+    if(!resp.ok){
+      if(resp.status===409)throw {status:409,message:githubErrorMessage(409)};
+      return resp.text().then(function(t){
+        var m=githubErrorMessage(resp.status);
+        try{var j=JSON.parse(t);if(j&&j.message)m+=": "+j.message;}catch(e){}
+        throw {status:resp.status,message:m};
+      });
+    }
+    return resp.json();
+  }).then(function(json){
+    if(json&&json.content&&json.content.sha)fileSha=json.content.sha;
+    return json;
+  }).catch(function(err){
+    if(err&&err.status)throw err;
+    throw {status:0,message:"Не удалось связаться с GitHub"};
+  });
+}
+function commitAndResync(newList,message){
+  setBusy(true,"Сохраняю...");
+  setSyncState("saving","сохраняю...");
+  clearError();
+  return pushDomainsToGitHub(newList,message).then(function(){return fetchFileFromGitHub();}).then(function(){
+    setSyncState("ok","● синхронизировано");
+    render();
+  });
+}
+function getVisibleDomains(){
+  var q=(searchQuery||"").trim().toLowerCase();
+  if(!q)return domains.slice();
+  return domains.filter(function(d){return d.indexOf(q)>=0;});
 }
 function render(){
-  filter=$("search").value.trim().toLowerCase();
-  const shown=domains.filter(d=>d.includes(filter));
-  $("countText").textContent=`${domains.length} доменов${filter?` · найдено ${shown.length}`:""}`;
-  $("list").innerHTML="";
-  if(!shown.length){ $("list").innerHTML='<div class="empty">Список пуст</div>'; updateSelection(); return; }
-  const frag=document.createDocumentFragment();
-  shown.forEach(d=>{
-    const row=document.createElement("div"); row.className="item";
-    const cb=document.createElement("input"); cb.type="checkbox"; cb.className="checkbox"; cb.dataset.domain=d;
-    const name=document.createElement("div"); name.className="domain"; name.textContent=d;
-    const edit=document.createElement("button"); edit.className="ghost icon-btn"; edit.textContent="Изменить";
-    edit.onclick=()=>startEdit(row,d);
-    const del=document.createElement("button"); del.className="danger icon-btn"; del.textContent="Удалить";
-    del.onclick=()=>deleteDomains([d]);
-    row.append(cb,name,edit,del); frag.appendChild(row);
-  });
-  $("list").appendChild(frag); updateSelection();
-}
-function updateSelection(){
-  const n=[...document.querySelectorAll(".checkbox:checked")].length;
-  $("deleteSelected").disabled=!n;
-  $("deleteSelected").textContent=n?`Удалить выбранные (${n})`:"Удалить выбранные";
-}
-function snapshot(){ return domains.slice(); }
-function toast(text, undoFn){
-  const wrap=$("toastWrap"); wrap.innerHTML="";
-  const t=document.createElement("div"); t.className="toast";
-  const s=document.createElement("span"); s.textContent=text; t.appendChild(s);
-  if(undoFn){ const b=document.createElement("button"); b.textContent="Отменить"; b.onclick=async()=>{wrap.innerHTML=""; await undoFn();}; t.appendChild(b); }
-  wrap.appendChild(t);
-  setTimeout(()=>{ if(wrap.contains(t)) wrap.innerHTML=""; },4500);
-}
-async function commit(message){
-  if(!fileSha) await load(false);
-  if(!fileSha) throw new Error("Не удалось получить текущую версию файла.");
-  saving=true; document.body.classList.add("busy"); setSync("сохранение…");
-  try{
-    const content=domains.length?domains.join("\n")+"\n":"";
-    const f=await api(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`,{
-      method:"PUT",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({message,content:enc(content),sha:fileSha,branch:BRANCH})
-    });
-    fileSha=f.content.sha;
-    // Re-read from GitHub API so the visible list is the server copy.
-    await load(false);
-    setSync("● синхронизировано","ok");
-    return true;
-  }catch(e){
-    setSync("ошибка","err"); throw e;
-  }finally{saving=false; document.body.classList.remove("busy");}
-}
-async function deleteDomains(list){
-  if(saving||!list.length)return;
-  const old=snapshot(), set=new Set(list);
-  domains=domains.filter(d=>!set.has(d)); render();
-  setStatus("");
-  try{
-    await commit(list.length===1?`Delete ${list[0]}`:"Delete domains");
-    toast(list.length===1?`Удалён ${list[0]}`:`Удалено: ${list.length}`,async()=>{
-      domains=old; render();
-      try{await commit("Undo delete"); toast("Удаление отменено");}catch(e){setStatus(e.message,"err");}
-    });
-  }catch(e){
-    domains=old; render(); setStatus(e.message,"err");
-  }
-}
-function startEdit(row,old){
-  if(saving)return;
-  row.innerHTML="";
-  const input=document.createElement("input"); input.value=old; input.className="domain-edit";
-  const ok=document.createElement("button"); ok.textContent="✓"; ok.className="icon-btn";
-  const cancel=document.createElement("button"); cancel.textContent="×"; cancel.className="ghost icon-btn";
-  row.append(input,ok,cancel); input.focus(); input.select();
-  const cancelEdit=()=>render();
-  cancel.onclick=cancelEdit;
-  input.onkeydown=e=>{if(e.key==="Escape")cancelEdit(); if(e.key==="Enter")ok.click();};
-  ok.onclick=async()=>{
-    const nd=normalize(input.value);
-    if(!validDomain(nd)){setStatus("Некорректный домен.","err");return;}
-    if(nd!==old&&domains.includes(nd)){setStatus("Такой домен уже есть.","warn");return;}
-    const oldList=snapshot();
-    domains=domains.map(d=>d===old?nd:d).sort((a,b)=>a.localeCompare(b)); render();
-    try{
-      await commit(`Edit ${old} to ${nd}`);
-      toast(`Изменено: ${nd}`,async()=>{
-        domains=oldList; render();
-        try{await commit("Undo edit");toast("Изменение отменено")}catch(e){setStatus(e.message,"err")}
-      });
-    }catch(e){domains=oldList;render();setStatus(e.message,"err")}
-  };
-}
-async function addDomains(values){
-  if(saving)return;
-  const old=snapshot(), added=[];
-  for(const v of values){
-    const d=normalize(v);
-    if(d&&!domains.includes(d)&&validDomain(d)){domains.push(d);added.push(d);}
-  }
-  if(!added.length){setStatus("Новых корректных доменов не найдено.","warn");return;}
-  domains=[...new Set(domains)].sort((a,b)=>a.localeCompare(b)); render();
-  try{
-    await commit(added.length===1?`Add ${added[0]}`:"Add domains");
-    toast(added.length===1?`Добавлен ${added[0]}`:`Добавлено: ${added.length}`,async()=>{
-      domains=old; render();
-      try{await commit("Undo add");toast("Добавление отменено")}catch(e){setStatus(e.message,"err")}
-    });
-    setStatus("");
-  }catch(e){domains=old;render();setStatus(e.message,"err")}
-}
-$("addBtn").onclick=()=>{const v=$("newDomain").value;$("newDomain").value="";addDomains([v]);};
-$("newDomain").onkeydown=e=>{if(e.key==="Enter")$("addBtn").click();};
-$("search").oninput=render;
-$("refresh").onclick=()=>load(true);
-$("list").onchange=updateSelection;
-$("deleteSelected").onclick=()=>{
-  const xs=[...document.querySelectorAll(".checkbox:checked")].map(x=>x.dataset.domain);
-  if(xs.length)deleteDomains(xs);
-};
-$("selectAll").onclick=()=>{
-  const boxes=[...document.querySelectorAll(".checkbox")];
-  const allChecked=boxes.length&&boxes.every(x=>x.checked);
-  boxes.forEach(x=>x.checked=!allChecked); updateSelection();
-  $("selectAll").textContent=allChecked?"Выбрать всё":"Снять выбор";
-};
-$("bulkAdd").onclick=()=>{
-  const v=$("bulk").value.split(/[,\n;]+/).map(x=>x.trim()).filter(Boolean);
-  $("bulk").value=""; addDomains(v);
-};
-$("saveToken").onclick=async()=>{
-  const t=$("token").value.trim();
-  if(!t){
-    $("tokenMsg").textContent="Введите Token.";
-    $("tokenMsg").className="small err";
+  clearError();
+  elTotal.textContent="Всего: "+domains.length+" доменов";
+  var visible=getVisibleDomains();
+  var visSet={};
+  for(var i=0;i<visible.length;i++)visSet[visible[i]]=1;
+  var selVisible=0;
+  selected.forEach(function(d){if(visSet[d])selVisible++;});
+  elBulkDelete.textContent=selected.size?("Удалить выбранные ("+selected.size+")"):"Удалить выбранные";
+  var allSel=visible.length>0&&selVisible===visible.length;
+  elSelectAll.textContent=allSel?"Снять выбор":"Выбрать всё";
+  elList.innerHTML="";
+  if(!visible.length){
+    var e=document.createElement("div");
+    e.className="empty";
+    e.textContent=domains.length?"Ничего не найдено":"Список пуст. Добавьте первый домен.";
+    elList.appendChild(e);
     return;
   }
-
-  $("saveToken").disabled=true;
-  $("tokenMsg").textContent="Сохраняю Token…";
-  $("tokenMsg").className="small";
-
-  try{
-    await saveTokenValue(t);
-    updateTokenState(true);
-
-    // Verify both token and repository access.
-    const f=await fetchFile();
-    fileSha=f.sha;
-    domains=[...new Set(
-      dec(f.content).split(/\r?\n/).map(normalize).filter(Boolean)
-    )].sort((a,b)=>a.localeCompare(b));
-
+  for(var vi=0;vi<visible.length;vi++){
+    (function(domain){
+      var row=document.createElement("div");
+      row.className="drow";
+      if(editingDomain===domain){
+        var inp=document.createElement("input");
+        inp.type="text";inp.value=domain;
+        inp.setAttribute("aria-label","Редактировать домен");
+        var bOk=document.createElement("button");
+        bOk.type="button";bOk.className="btn-blue btn-small";bOk.textContent="✓";bOk.title="Сохранить";
+        var bCancel=document.createElement("button");
+        bCancel.type="button";bCancel.className="btn-ghost btn-small";bCancel.textContent="×";bCancel.title="Отмена";
+        bOk.addEventListener("click",function(){handleEditSave(domain,inp.value);});
+        bCancel.addEventListener("click",function(){handleEditCancel();});
+        inp.addEventListener("keydown",function(ev){
+          if(ev.key==="Enter"){ev.preventDefault();handleEditSave(domain,inp.value);}
+          else if(ev.key==="Escape"){ev.preventDefault();handleEditCancel();}
+        });
+        row.appendChild(inp);
+        var acts=document.createElement("div");
+        acts.className="dactions";
+        acts.appendChild(bOk);acts.appendChild(bCancel);
+        row.appendChild(acts);
+        elList.appendChild(row);
+        setTimeout(function(){try{inp.focus();inp.select();}catch(x){}},0);
+      }else{
+        var cb=document.createElement("input");
+        cb.type="checkbox";cb.checked=selected.has(domain);
+        cb.setAttribute("aria-label","Выбрать "+domain);
+        cb.dataset.domain=domain;
+        var nm=document.createElement("div");
+        nm.className="dname";
+        var sp=document.createElement("span");
+        sp.textContent=domain;sp.title=domain;
+        nm.appendChild(sp);
+        var bEdit=document.createElement("button");
+        bEdit.type="button";bEdit.className="btn-ghost btn-small";bEdit.textContent="Изменить";bEdit.dataset.domain=domain;bEdit.dataset.act="edit";
+        var bDel=document.createElement("button");
+        bDel.type="button";bDel.className="btn-red btn-small";bDel.textContent="Удалить";bDel.dataset.domain=domain;bDel.dataset.act="del";
+        var acts2=document.createElement("div");
+        acts2.className="dactions";
+        acts2.appendChild(bEdit);acts2.appendChild(bDel);
+        row.appendChild(cb);row.appendChild(nm);row.appendChild(acts2);
+        elList.appendChild(row);
+      }
+    })(visible[vi]);
+  }
+}
+function handleRefresh(){
+  if(busy)return;
+  setBusy(true,"Загружаю...");
+  setSyncState("loading","загрузка...");
+  clearError();
+  fetchFileFromGitHub().then(function(){
+    editingDomain=null;
+    if(getToken())setSyncState("ok","● подключено к GitHub · синхронизировано");
+    else setSyncState("ok","● синхронизировано");
     render();
-    setSync("● подключено к GitHub","ok");
-    setStatus("");
-    $("tokenMsg").textContent="✓ Token сохранён и доступ к GitHub работает.";
-    $("tokenMsg").className="small ok";
-  }catch(e){
-    // Keep the token saved even when the verification request fails.
-    updateTokenState(true);
-    $("tokenMsg").textContent="✓ Token сохранён. Ошибка проверки GitHub: "+e.message;
-    $("tokenMsg").className="small warn";
-  }finally{
-    $("saveToken").disabled=false;
+    showToast("Обновлено","ok");
+  }).catch(function(err){
+    setSyncState("error","ошибка");
+    showError(err.message||"Ошибка загрузки");
+  }).then(function(){setBusy(false);});
+}
+function handleAddSingle(){
+  var raw=elAddInput.value;
+  var n=normalizeDomain(raw);
+  if(!n){showToast("Введите корректный домен","err");return;}
+  if(domains.indexOf(n)>=0){showToast("Такой домен уже есть","err");return;}
+  if(!getToken()){showToast("Сначала сохраните GitHub Token","err");return;}
+  if(busy)return;
+  var backup=domains.slice();
+  var next=sortUnique(backup.concat([n]));
+  domains=next;editingDomain=null;render();
+  commitAndResync(next,"add "+n).then(function(){
+    elAddInput.value="";
+    showToast("Добавлено: "+n,"ok");
+  }).catch(function(err){
+    domains=backup;render();
+    setSyncState("error","ошибка");
+    showError(err.message||"Ошибка сохранения");
+  }).then(function(){setBusy(false);});
+}
+function handleDeleteSingle(domain){
+  if(busy)return;
+  if(!getToken()){showToast("Сначала сохраните GitHub Token","err");return;}
+  var backup=domains.slice();
+  var next=backup.filter(function(d){return d!==domain;});
+  selected.delete(domain);
+  if(editingDomain===domain)editingDomain=null;
+  domains=next;render();
+  commitAndResync(next,"delete "+domain).then(function(){
+    showToast("Удалено: "+domain,"ok");
+    showUndoBar([domain]);
+  }).catch(function(err){
+    domains=backup;render();
+    setSyncState("error","ошибка");
+    showError(err.message||"Ошибка сохранения");
+  }).then(function(){setBusy(false);});
+}
+function showUndoBar(items){
+  lastUndo=items.slice();
+  elUndoText.textContent="Удалено: "+items.join(", ");
+  elUndoBar.hidden=false;
+  if(undoTimer)clearTimeout(undoTimer);
+  undoTimer=setTimeout(function(){elUndoBar.hidden=true;lastUndo=null;},8000);
+}
+function handleUndo(){
+  if(!lastUndo||!lastUndo.length)return;
+  if(busy)return;
+  if(!getToken()){showToast("Сначала сохраните GitHub Token","err");return;}
+  var toRestore=lastUndo.slice();
+  lastUndo=null;elUndoBar.hidden=true;
+  var backup=domains.slice();
+  var next=sortUnique(backup.concat(toRestore));
+  domains=next;render();
+  commitAndResync(next,"restore "+toRestore.join(",")).then(function(){
+    showToast("Восстановлено","ok");
+  }).catch(function(err){
+    domains=backup;render();
+    showError(err.message||"Ошибка восстановления");
+  }).then(function(){setBusy(false);});
+}
+function handleBulkAdd(){
+  var parts=parseBulkText(elBulkText.value);
+  var added=0,existed=0,invalid=0;
+  var fresh=[];
+  var have={};
+  for(var i=0;i<domains.length;i++)have[domains[i]]=1;
+  var seenBatch={};
+  for(var j=0;j<parts.length;j++){
+    var raw=String(parts[j]||"").trim();
+    if(!raw)continue;
+    var n=normalizeDomain(raw);
+    if(!n){invalid++;continue;}
+    if(have[n]||seenBatch[n]){existed++;continue;}
+    seenBatch[n]=1;fresh.push(n);added++;
   }
-};
-$("clearToken").onclick=async()=>{
-  await removeStoredToken();
-  $("token").value="";
-  updateTokenState(false);
-  $("tokenMsg").textContent="Token удалён из браузера.";
-  $("tokenMsg").className="small ok";
-  domains=[]; fileSha=null; render(); setSync("");
-};
-(async()=>{
-  cachedToken = await readToken();
-  $("token").value = cachedToken;
-  updateTokenState(!!cachedToken);
+  elBulkStats.textContent="Добавлено: "+added+" · уже были: "+existed+" · ошибочных: "+invalid;
+  if(!fresh.length){if(added===0)showToast("Нет новых доменов","err");return;}
+  if(!getToken()){showToast("Сначала сохраните GitHub Token","err");return;}
+  if(busy)return;
+  var backup=domains.slice();
+  var next=sortUnique(backup.concat(fresh));
+  domains=next;render();
+  commitAndResync(next,"bulk add "+fresh.length).then(function(){
+    elBulkText.value="";
+    showToast("Добавлено: "+added,"ok");
+  }).catch(function(err){
+    domains=backup;render();
+    setSyncState("error","ошибка");
+    showError(err.message||"Ошибка сохранения");
+  }).then(function(){setBusy(false);});
+}
+function handleEditSave(oldVal,newVal){
+  var n=normalizeDomain(newVal);
+  if(!n){showToast("Некорректный домен","err");return;}
+  if(n!==oldVal&&domains.indexOf(n)>=0){showToast("Такой домен уже есть","err");return;}
+  if(n===oldVal){editingDomain=null;render();return;}
+  if(!getToken()){showToast("Сначала сохраните GitHub Token","err");return;}
+  if(busy)return;
+  var backup=domains.slice();
+  var next=sortUnique(backup.map(function(d){return d===oldVal?n:d;}));
+  if(selected.has(oldVal)){selected.delete(oldVal);selected.add(n);}
+  editingDomain=null;domains=next;render();
+  commitAndResync(next,"edit "+oldVal+" -> "+n).then(function(){
+    showToast("Сохранено: "+n,"ok");
+  }).catch(function(err){
+    domains=backup;render();
+    setSyncState("error","ошибка");
+    showError(err.message||"Ошибка сохранения");
+  }).then(function(){setBusy(false);});
+}
+function handleEditCancel(){editingDomain=null;render();}
+function handleSelectAll(){
+  var visible=getVisibleDomains();
+  if(!visible.length)return;
+  var allSel=true;
+  for(var i=0;i<visible.length;i++){if(!selected.has(visible[i])){allSel=false;break;}}
+  if(allSel){for(var j=0;j<visible.length;j++)selected.delete(visible[j]);}
+  else{for(var k=0;k<visible.length;k++)selected.add(visible[k]);}
   render();
-  if(cachedToken) await load(true);
-  else {
-    setSync("");
-    setStatus("Укажите GitHub Token ниже.","warn");
-    $("tokenDetails").open=true;
-  }
-})();
+}
+function handleBulkDelete(){
+  if(busy)return;
+  if(!selected.size){showToast("Ничего не выбрано","err");return;}
+  if(!getToken()){showToast("Сначала сохраните GitHub Token","err");return;}
+  var n=selected.size;
+  var ok=false;
+  try{ok=confirm("Удалить "+n+" доменов?");}catch(e){ok=true;}
+  if(!ok)return;
+  var backup=domains.slice();
+  var delSet=new Set(selected);
+  var next=backup.filter(function(d){return !delSet.has(d);});
+  selected.clear();editingDomain=null;
+  domains=next;render();
+  commitAndResync(next,"bulk delete "+n).then(function(){
+    showToast("Удалено: "+n,"ok");
+  }).catch(function(err){
+    domains=backup;render();
+    setSyncState("error","ошибка");
+    showError(err.message||"Ошибка сохранения");
+  }).then(function(){setBusy(false);});
+}
+function handleTokenSave(){
+  var t=elTokenInput.value.trim();
+  if(!t){showToast("Вставьте токен","err");return;}
+  persistToken(t).then(function(){
+    elTokenInput.value="";
+    showToast("✓ Token сохранён","ok");
+    return fetchFileFromGitHub().then(function(){
+      setSyncState("ok","● подключено к GitHub · синхронизировано");
+      editingDomain=null;render();
+    }).catch(function(err){
+      showToast("Token сохранён. GitHub недоступен: "+(err.message||"ошибка"),"err");
+      setSyncState("error","ошибка");
+      showError(err.message||"Ошибка");
+    });
+  });
+}
+function handleTokenDelete(){
+  clearStoredToken().then(function(){
+    elTokenInput.value="";
+    showToast("Token удалён","ok");
+    setSyncState("loading","токен не задан");
+  });
+}
+function bindEvents(){
+  elRefresh.addEventListener("click",handleRefresh);
+  elBtnAdd.addEventListener("click",handleAddSingle);
+  elAddInput.addEventListener("keydown",function(ev){if(ev.key==="Enter"){ev.preventDefault();handleAddSingle();}});
+  elSearch.addEventListener("input",function(){searchQuery=elSearch.value||"";render();});
+  elSelectAll.addEventListener("click",handleSelectAll);
+  elBulkDelete.addEventListener("click",handleBulkDelete);
+  elBtnBulkAdd.addEventListener("click",handleBulkAdd);
+  elBtnTokenSave.addEventListener("click",handleTokenSave);
+  elBtnTokenDelete.addEventListener("click",handleTokenDelete);
+  elBtnUndo.addEventListener("click",handleUndo);
+  elList.addEventListener("change",function(ev){
+    var t=ev.target;
+    if(t&&t.type==="checkbox"&&t.dataset&&t.dataset.domain){
+      var d=t.dataset.domain;
+      if(t.checked)selected.add(d);else selected.delete(d);
+      render();
+    }
+  });
+  elList.addEventListener("click",function(ev){
+    var t=ev.target;
+    if(!t||!t.dataset||!t.dataset.act)return;
+    var d=t.dataset.domain;
+    if(t.dataset.act==="del")handleDeleteSingle(d);
+    else if(t.dataset.act==="edit"){editingDomain=d;render();}
+  });
+}
+document.addEventListener("DOMContentLoaded",function(){
+  initDom();
+  bindEvents();
+  updateTokenStatus();
+  setSyncState("loading","загрузка...");
+  setBusy(true,"Загружаю...");
+  loadStoredToken().then(function(){
+    if(!getToken()){
+      setSyncState("loading","токен не задан");
+      setBusy(false);
+      render();
+      return;
+    }
+    return fetchFileFromGitHub().then(function(){
+      setSyncState("ok","● подключено к GitHub · синхронизировано");
+      render();
+    }).catch(function(err){
+      setSyncState("error","ошибка");
+      render();
+      showError(err.message||"Ошибка загрузки");
+    }).then(function(){setBusy(false);});
+  });
+});
 </script>
 </body>
 </html>
