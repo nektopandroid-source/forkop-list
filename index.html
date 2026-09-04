@@ -106,19 +106,22 @@ ytimg.com"></textarea>
   </section>
 
   <section class="card">
-    <details id="tokenDetails">
-      <summary>GitHub Token</summary>
-      <input id="token" class="tokenrow" type="password" placeholder="github_pat_…" autocomplete="off">
+  <details id="tokenDetails">
+    <summary>GitHub Token <span id="tokenState" class="small"></span></summary>
+    <div style="margin-top:9px">
+      <input id="token" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
       <div class="row">
-        <button id="saveToken" style="margin-top:8px;flex:1">Сохранить и проверить</button>
+        <button id="saveToken" style="margin-top:8px;flex:1">Сохранить Token</button>
         <button id="clearToken" class="ghost" style="margin-top:8px">Удалить</button>
       </div>
+      <div id="tokenMsg" class="small" style="margin-top:7px"></div>
       <div class="note">
-        Нужен Fine-grained token только для репозитория <b>forkop-list</b> с правом
-        <b>Contents → Read and write</b>. Токен хранится только в этом браузере.
+        Token хранится в локальном хранилище этого браузера и не записывается в GitHub.
+        Нужен Fine-grained token для <b>forkop-list</b> с <b>Contents → Read and write</b>.
       </div>
-    </details>
-  </section>
+    </div>
+  </details>
+</section>
 </main>
 
 <div id="toastWrap" class="toast-wrap"></div>
@@ -131,12 +134,25 @@ const $=id=>document.getElementById(id);
 
 function setStatus(text,type=""){ $("status").textContent=text; $("status").className=type; }
 function setSync(text,type=""){ $("syncText").textContent=text; $("syncText").className=type; }
-function token(){ return localStorage.getItem("forkop_github_token")||""; }
-
-function normalize(v){
-  let d=(v||"").trim().toLowerCase();
-  d=d.replace(/^https?:\/\//,"").split("/")[0].replace(/^www\./,"").replace(/\.$/,"");
-  return d;
+function token(){
+  try { return localStorage.getItem("forkop_github_token") || ""; }
+  catch(e){ return ""; }
+}
+function setStoredToken(value){
+  try {
+    localStorage.setItem("forkop_github_token", value);
+    return localStorage.getItem("forkop_github_token") === value;
+  } catch(e) {
+    throw new Error("Браузер запретил сохранение данных для этого сайта.");
+  }
+}
+function removeStoredToken(){
+  try { localStorage.removeItem("forkop_github_token"); } catch(e){}
+}
+function updateTokenState(){
+  const has=!!token();
+  $("tokenState").textContent=has?" · сохранён ✓":" · не задан";
+  $("tokenState").className="small "+(has?"ok":"warn");
 }
 function validDomain(d){
   return /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i.test(d);
@@ -334,16 +350,46 @@ $("bulkAdd").onclick=()=>{
 };
 $("saveToken").onclick=async()=>{
   const t=$("token").value.trim();
-  if(!t){setStatus("Введите Token.","err");return;}
-  localStorage.setItem("forkop_github_token",t);
-  await load(true);
+  if(!t){
+    $("tokenMsg").textContent="Введите Token.";
+    $("tokenMsg").className="small err";
+    return;
+  }
+  try{
+    if(!setStoredToken(t)) throw new Error("Не удалось сохранить Token.");
+    updateTokenState();
+    $("tokenMsg").textContent="✓ Token сохранён. Проверяю доступ…";
+    $("tokenMsg").className="small ok";
+
+    const response=await fetchFile();
+    const meta=await api(
+      `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}&_=${Date.now()}-${Math.random().toString(36).slice(2)}`
+    );
+    fileSha=meta.sha;
+    domains=[...new Set(response.split(/\r?\n/).map(normalize).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+    render();
+    setSync("● токен проверен","ok");
+    $("tokenMsg").textContent="✓ Token сохранён и работает.";
+  }catch(e){
+    updateTokenState();
+    $("tokenMsg").textContent="Token сохранён, но проверка не прошла: "+e.message;
+    $("tokenMsg").className="small err";
+  }
 };
 $("clearToken").onclick=()=>{
-  localStorage.removeItem("forkop_github_token");$("token").value="";
-  domains=[];fileSha=null;render();setSync("");setStatus("Token удалён.","ok");
+  removeStoredToken();
+  $("token").value="";
+  updateTokenState();
+  $("tokenMsg").textContent="Token удалён из браузера.";
+  $("tokenMsg").className="small ok";
+  domains=[];
+  fileSha=null;
+  render();
+  setSync("");
 };
 $("token").value=token();
-if(token())load(true); else {setSync("");setStatus("Укажите GitHub Token ниже.","warn");$("tokenDetails").open=true;}
+updateTokenState();
+if(token()) load(true); else {setSync("");setStatus("Укажите GitHub Token ниже.","warn");$("tokenDetails").open=true;}
 render();
 </script>
 </body>
