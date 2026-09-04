@@ -116,7 +116,7 @@ ytimg.com"></textarea>
       </div>
       <div id="tokenMsg" class="small" style="margin-top:7px"></div>
       <div class="note">
-        Token хранится в локальном хранилище этого браузера и не записывается в GitHub.
+        Token сохраняется локально в браузере (localStorage + резервная копия IndexedDB) и не записывается в GitHub.
         Нужен Fine-grained token для <b>forkop-list</b> с <b>Contents → Read and write</b>.
       </div>
     </div>
@@ -134,38 +134,90 @@ const $=id=>document.getElementById(id);
 
 function setStatus(text,type=""){ $("status").textContent=text; $("status").className=type; }
 function setSync(text,type=""){ $("syncText").textContent=text; $("syncText").className=type; }
-function token(){
-  try { return localStorage.getItem("forkop_github_token") || ""; }
-  catch(e){ return ""; }
+let cachedToken = "";
+
+async function readToken(){
+  if(cachedToken) return cachedToken;
+  try{
+    const ls = localStorage.getItem("forkop_github_token");
+    if(ls){ cachedToken = ls; return cachedToken; }
+  }catch(e){}
+  try{
+    const db = await new Promise((resolve,reject)=>{
+      const req=indexedDB.open("forkop-settings",1);
+      req.onupgradeneeded=()=>req.result.createObjectStore("kv");
+      req.onerror=()=>reject(req.error);
+      req.onsuccess=()=>resolve(req.result);
+    });
+    const value = await new Promise((resolve,reject)=>{
+      const tx=db.transaction("kv","readonly");
+      const req=tx.objectStore("kv").get("github_token");
+      req.onerror=()=>reject(req.error);
+      req.onsuccess=()=>resolve(req.result||"");
+    });
+    db.close();
+    if(value){ cachedToken=value; return cachedToken; }
+  }catch(e){}
+  return "";
 }
-function setStoredToken(value){
-  try {
-    localStorage.setItem("forkop_github_token", value);
-    return localStorage.getItem("forkop_github_token") === value;
-  } catch(e) {
-    throw new Error("Браузер запретил сохранение данных для этого сайта.");
-  }
+async function saveTokenValue(value){
+  cachedToken=value;
+  let localOk=false;
+  try{
+    localStorage.setItem("forkop_github_token",value);
+    localOk = localStorage.getItem("forkop_github_token")===value;
+  }catch(e){}
+  let dbOk=false;
+  try{
+    const db = await new Promise((resolve,reject)=>{
+      const req=indexedDB.open("forkop-settings",1);
+      req.onupgradeneeded=()=>req.result.createObjectStore("kv");
+      req.onerror=()=>reject(req.error);
+      req.onsuccess=()=>resolve(req.result);
+    });
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction("kv","readwrite");
+      tx.objectStore("kv").put(value,"github_token");
+      tx.oncomplete=resolve;
+      tx.onerror=()=>reject(tx.error);
+    });
+    db.close();
+    dbOk=true;
+  }catch(e){}
+  if(!localOk && !dbOk) throw new Error("Браузер запрещает локальное хранение данных для этой страницы.");
+  return true;
 }
-function removeStoredToken(){
-  try { localStorage.removeItem("forkop_github_token"); } catch(e){}
+async function removeStoredToken(){
+  cachedToken="";
+  try{ localStorage.removeItem("forkop_github_token"); }catch(e){}
+  try{
+    const db = await new Promise((resolve,reject)=>{
+      const req=indexedDB.open("forkop-settings",1);
+      req.onupgradeneeded=()=>req.result.createObjectStore("kv");
+      req.onerror=()=>reject(req.error);
+      req.onsuccess=()=>resolve(req.result);
+    });
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction("kv","readwrite");
+      tx.objectStore("kv").delete("github_token");
+      tx.oncomplete=resolve;
+      tx.onerror=()=>reject(tx.error);
+    });
+    db.close();
+  }catch(e){}
 }
-function updateTokenState(){
-  const has=!!token();
-  $("tokenState").textContent=has?" · сохранён ✓":" · не задан";
-  $("tokenState").className="small "+(has?"ok":"warn");
+async function getTokenOrThrow(){
+  const t=await readToken();
+  if(!t) throw new Error("Сначала сохраните GitHub Token.");
+  return t;
 }
-function validDomain(d){
-  return /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i.test(d);
-}
-function enc(s){
-  const b=new TextEncoder().encode(s); let x=""; for(const n of b)x+=String.fromCharCode(n); return btoa(x);
-}
-function dec(s){
-  const b=atob(s.replace(/\n/g,"")); return new TextDecoder().decode(Uint8Array.from(b,c=>c.charCodeAt(0)));
+function updateTokenState(has){
+  const h = typeof has==="boolean" ? has : !!cachedToken;
+  $("tokenState").textContent=h?" · сохранён ✓":" · не задан";
+  $("tokenState").className="small "+(h?"ok":"warn");
 }
 async function api(url,opt={}){
-  const t=token();
-  if(!t) throw new Error("Сначала сохраните GitHub Token.");
+  const t=await getTokenOrThrow();
   const r=await fetch(url,{...opt,cache:"no-store",headers:{
     Accept:"application/vnd.github+json",
     Authorization:"Bearer "+t,
@@ -355,42 +407,48 @@ $("saveToken").onclick=async()=>{
     $("tokenMsg").className="small err";
     return;
   }
+  $("saveToken").disabled=true;
   try{
-    if(!setStoredToken(t)) throw new Error("Не удалось сохранить Token.");
-    updateTokenState();
-    $("tokenMsg").textContent="✓ Token сохранён. Проверяю доступ…";
+    await saveTokenValue(t);
+    updateTokenState(true);
+    $("tokenMsg").textContent="✓ Token сохранён. Проверяю доступ к GitHub…";
     $("tokenMsg").className="small ok";
-
-    const response=await fetchFile();
-    const meta=await api(
-      `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}&_=${Date.now()}-${Math.random().toString(36).slice(2)}`
-    );
-    fileSha=meta.sha;
-    domains=[...new Set(response.split(/\r?\n/).map(normalize).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-    render();
-    setSync("● токен проверен","ok");
-    $("tokenMsg").textContent="✓ Token сохранён и работает.";
+    try{
+      const response=await fetchFile();
+      const meta=await api(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}&_=${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      fileSha=meta.sha;
+      domains=[...new Set(response.split(/\r?\n/).map(normalize).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+      render();
+      setSync("● токен проверен","ok");
+      $("tokenMsg").textContent="✓ Token сохранён и работает.";
+    }catch(e){
+      // Important: the token remains saved even when GitHub/network check fails.
+      $("tokenMsg").textContent="✓ Token сохранён. Проверка GitHub не удалась: "+e.message;
+      $("tokenMsg").className="small warn";
+    }
   }catch(e){
-    updateTokenState();
-    $("tokenMsg").textContent="Token сохранён, но проверка не прошла: "+e.message;
+    $("tokenMsg").textContent=e.message;
     $("tokenMsg").className="small err";
+  }finally{
+    $("saveToken").disabled=false;
   }
 };
-$("clearToken").onclick=()=>{
-  removeStoredToken();
+$("clearToken").onclick=async()=>{
+  await removeStoredToken();
   $("token").value="";
-  updateTokenState();
+  updateTokenState(false);
   $("tokenMsg").textContent="Token удалён из браузера.";
   $("tokenMsg").className="small ok";
-  domains=[];
-  fileSha=null;
-  render();
-  setSync("");
+  domains=[]; fileSha=null; render(); setSync("");
 };
-$("token").value=token();
-updateTokenState();
-if(token()) load(true); else {setSync("");setStatus("Укажите GitHub Token ниже.","warn");$("tokenDetails").open=true;}
-render();
+(async()=>{
+  cachedToken = await readToken();
+  $("token").value = cachedToken;
+  updateTokenState(!!cachedToken);
+  if(cachedToken) load(true);
+  else {setSync("");setStatus("Укажите GitHub Token ниже.","warn");$("tokenDetails").open=true;}
+  render();
+})();
 </script>
 </body>
 </html>
