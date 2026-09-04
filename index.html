@@ -267,7 +267,7 @@ function setBusy(flag,what){
   elBusy.textContent=flag?(" · "+(what||"Сохраняю...")):"";
 }
 function apiHeaders(){
-  var h={"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28","Cache-Control":"no-cache"};
+  var h={"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"};
   var t=getToken();
   if(t)h["Authorization"]="Bearer "+t;
   return h;
