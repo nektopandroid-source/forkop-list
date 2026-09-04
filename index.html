@@ -234,6 +234,10 @@ async function api(url,opt={}){
   }
   return d;
 }
+function dec(s){
+  const b=atob((s||"").replace(/\n/g,""));
+  return new TextDecoder().decode(Uint8Array.from(b,c=>c.charCodeAt(0)));
+}
 async function fetchFile(){
   const url =
     `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}&_=${Date.now()}-${Math.random().toString(36).slice(2)}`;
