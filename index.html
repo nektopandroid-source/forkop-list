@@ -68,7 +68,7 @@ textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
     <div class="title">
       <div>
         <h1>Forkop — домены</h1>
-        <div class="sub">nektopandroid-source / forkop-list / domain.txt · данные читаются напрямую из GitHub</div>
+        <div class="sub">nektopandroid-source / forkop-list / domain.txt · панель v10</div>
       </div>
       <button id="refresh" class="ghost" title="Загрузить актуальный domain.txt с GitHub">↻</button>
     </div>
@@ -233,6 +233,20 @@ async function api(url,opt={}){
     throw new Error(d.message||("GitHub HTTP "+r.status));
   }
   return d;
+}
+function token(){
+  return cachedToken || "";
+}
+function normalize(v){
+  let d=(v||"").trim().toLowerCase();
+  d=d.replace(/^https?:\/\//,"").split("/")[0].replace(/^www\./,"").replace(/\.$/,"");
+  return d;
+}
+function enc(s){
+  const bytes=new TextEncoder().encode(s);
+  let bin="";
+  for(const b of bytes) bin+=String.fromCharCode(b);
+  return btoa(bin);
 }
 function dec(s){
   const b=atob((s||"").replace(/\n/g,""));
@@ -403,24 +417,31 @@ $("saveToken").onclick=async()=>{
     $("tokenMsg").className="small err";
     return;
   }
+
   $("saveToken").disabled=true;
+  $("tokenMsg").textContent="Сохраняю Token…";
+  $("tokenMsg").className="small";
+
   try{
     await saveTokenValue(t);
     updateTokenState(true);
-    $("tokenMsg").textContent="✓ Token сохранён. Проверяю доступ к GitHub…";
-    $("tokenMsg").className="small ok";
 
-    const f = await fetchFile();
+    // Verify both token and repository access.
+    const f=await fetchFile();
     fileSha=f.sha;
-    domains=[...new Set(dec(f.content).split(/\r?\n/).map(normalize).filter(Boolean))]
-      .sort((a,b)=>a.localeCompare(b));
+    domains=[...new Set(
+      dec(f.content).split(/\r?\n/).map(normalize).filter(Boolean)
+    )].sort((a,b)=>a.localeCompare(b));
+
     render();
-    setSync("● токен проверен","ok");
-    $("tokenMsg").textContent="✓ Token сохранён и работает.";
-    $("status").textContent="";
+    setSync("● подключено к GitHub","ok");
+    setStatus("");
+    $("tokenMsg").textContent="✓ Token сохранён и доступ к GitHub работает.";
+    $("tokenMsg").className="small ok";
   }catch(e){
-    // The token remains saved even if GitHub/network is unavailable.
-    $("tokenMsg").textContent="✓ Token сохранён. GitHub недоступен: "+e.message;
+    // Keep the token saved even when the verification request fails.
+    updateTokenState(true);
+    $("tokenMsg").textContent="✓ Token сохранён. Ошибка проверки GitHub: "+e.message;
     $("tokenMsg").className="small warn";
   }finally{
     $("saveToken").disabled=false;
@@ -438,9 +459,13 @@ $("clearToken").onclick=async()=>{
   cachedToken = await readToken();
   $("token").value = cachedToken;
   updateTokenState(!!cachedToken);
-  if(cachedToken) load(true);
-  else {setSync("");setStatus("Укажите GitHub Token ниже.","warn");$("tokenDetails").open=true;}
   render();
+  if(cachedToken) await load(true);
+  else {
+    setSync("");
+    setStatus("Укажите GitHub Token ниже.","warn");
+    $("tokenDetails").open=true;
+  }
 })();
 </script>
 </body>
