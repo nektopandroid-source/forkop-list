@@ -43,7 +43,7 @@ button:disabled{opacity:.5;cursor:default}
 .checkbox{width:18px;height:18px;flex:0 0 auto;accent-color:var(--accent)}
 .domain{flex:1;min-width:0;font-size:14px;overflow-wrap:anywhere}
 .domain-edit{flex:1;min-width:0}
-.icon-btn{padding:7px 9px;font-size:13px}
+.icon-btn{padding:7px 9px;font-size:13px;white-space:nowrap}
 .empty{text-align:center;padding:30px 8px;color:#7e8795}
 .busy{opacity:.65;pointer-events:none}
 .toast-wrap{position:fixed;left:0;right:0;bottom:14px;z-index:20;display:flex;justify-content:center;padding:0 12px;pointer-events:none;min-height:0}
@@ -59,7 +59,7 @@ textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
   .controls{grid-template-columns:1fr 1fr}
   .controls .searchWrap{grid-column:1/-1}
   .controls button{width:100%}
-  .item{display:grid;grid-template-columns:20px minmax(0,1fr) 72px;gap:7px;padding:8px 0}
+  .item{display:grid;grid-template-columns:20px minmax(0,1fr) 36px;gap:7px;padding:8px 0}
   .domain{min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .item .icon-btn{width:32px;min-width:32px;height:32px;padding:0;font-size:0;line-height:32px;text-align:center}
   .item .icon-btn:first-of-type::after{content:"✎";font-size:16px}
@@ -304,11 +304,9 @@ function render(){
     const row=document.createElement("div"); row.className="item";
     const cb=document.createElement("input"); cb.type="checkbox"; cb.className="checkbox"; cb.dataset.domain=d;
     const name=document.createElement("div"); name.className="domain"; name.textContent=d;
-    const edit=document.createElement("button"); edit.className="ghost icon-btn"; edit.textContent="Изменить";
-    edit.title="Изменить"; edit.setAttribute("aria-label","Изменить "+d); edit.onclick=()=>startEdit(row,d);
     const del=document.createElement("button"); del.className="danger icon-btn"; del.textContent="Удалить";
     del.title="Удалить"; del.setAttribute("aria-label","Удалить "+d); del.onclick=()=>deleteDomains([d]);
-    row.append(cb,name,edit,del); frag.appendChild(row);
+    row.append(cb,name,del); frag.appendChild(row);
   });
   $("list").appendChild(frag); updateSelection();
 }
