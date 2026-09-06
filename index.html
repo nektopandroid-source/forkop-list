@@ -26,7 +26,7 @@ h1{font-size:22px;line-height:1.1;margin:0}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:11px;margin-bottom:11px}
 .row{display:flex;gap:8px}
 input,textarea,button{font:inherit;border-radius:11px}
-input,textarea{background:var(--input);border:1px solid #39404b;color:#fff;padding:11px 12px;outline:none}
+input,textarea{background:var(--input);border:1px solid #39404b;color:#fff;padding:11px 12px;outline:none;min-height:44px;-webkit-appearance:none;appearance:none}
 input:focus,textarea:focus{border-color:#5c89ff}
 button{border:0;padding:10px 13px;background:var(--accent);color:#fff;font-weight:650;cursor:pointer}
 button:disabled{opacity:.5;cursor:default}
@@ -52,7 +52,7 @@ button:disabled{opacity:.5;cursor:default}
 #status{min-height:18px;padding-top:5px;font-size:12px}
 .ok{color:var(--ok)}.err{color:#ff939c}.warn{color:#ffd27a}
 details summary{cursor:pointer;font-weight:650}
-textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
+textarea{width:100%;min-height:120px;resize:vertical;margin-top:9px;line-height:1.45}
 .note{font-size:11px;line-height:1.4;color:#858e9c;margin-top:8px}
 .tokenrow{margin-top:9px}
 @media(max-width:620px){
@@ -68,7 +68,7 @@ textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
     <div class="title">
       <div>
         <h1>Forkop — домены</h1>
-        <div class="sub">nektopandroid-source / forkop-list / domain.txt · панель v12</div>
+        <div class="sub">nektopandroid-source / forkop-list / domain.txt · панель v13</div>
       </div>
       <button id="refresh" class="ghost" title="Загрузить актуальный domain.txt с GitHub">↻</button>
     </div>
@@ -87,7 +87,13 @@ textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
     </div>
 
     <div class="controls">
-      <div class="searchWrap"><input id="search" class="search" placeholder="Поиск"></div>
+      <div class="searchWrap"><input id="search" class="search"
+           placeholder="Поиск по доменам…"
+           autocomplete="off"
+           autocapitalize="none"
+           autocorrect="off"
+           spellcheck="false"
+           inputmode="search"></div>
       <button id="deleteSelected" class="danger" disabled>Удалить выбранные</button>
       <button id="selectAll" class="ghost">Выбрать всё</button>
     </div>
@@ -104,9 +110,15 @@ textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
   <section class="card">
     <details>
       <summary>Добавить несколько доменов</summary>
-      <textarea id="bulk" placeholder="youtube.com
+      <textarea id="bulk"
+        placeholder="youtube.com
 googlevideo.com
-ytimg.com"></textarea>
+ytimg.com"
+        autocomplete="off"
+        autocapitalize="none"
+        autocorrect="off"
+        spellcheck="false"
+        inputmode="url"></textarea>
       <button id="bulkAdd" style="margin-top:8px;width:100%">Добавить всё</button>
     </details>
   </section>
@@ -115,7 +127,13 @@ ytimg.com"></textarea>
   <details id="tokenDetails">
     <summary>GitHub Token <span id="tokenState" class="small"></span></summary>
     <div style="margin-top:9px">
-      <input id="token" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
+      <input id="token" type="password"
+           placeholder="github_pat_…"
+           autocomplete="off"
+           autocapitalize="none"
+           autocorrect="off"
+           spellcheck="false"
+           inputmode="text">
       <div class="row">
         <button id="saveToken" style="margin-top:8px;flex:1">Сохранить Token</button>
         <button id="clearToken" class="ghost" style="margin-top:8px">Удалить</button>
@@ -413,6 +431,13 @@ $("newDomain").addEventListener("input",()=>{
     el.value=newValue;
     try{el.setSelectionRange(Math.max(0,pos-removedBefore),Math.max(0,pos-removedBefore));}catch(_e){}
   }
+});
+$("bulk").addEventListener("input",()=>{
+  const el=$("bulk");
+  const oldValue=el.value;
+  // Keep line breaks, but remove spaces/tabs that Android keyboards may insert.
+  const newValue=oldValue.replace(/[ \t]+/g,"");
+  if(newValue!==oldValue) el.value=newValue;
 });
 $("search").oninput=render;
 $("refresh").onclick=()=>load(true);
