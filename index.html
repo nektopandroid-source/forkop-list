@@ -43,10 +43,10 @@ button:disabled{opacity:.5;cursor:default}
 .checkbox{width:18px;height:18px;flex:0 0 auto;accent-color:var(--accent)}
 .domain{flex:1;min-width:0;font-size:14px;overflow-wrap:anywhere}
 .domain-edit{flex:1;min-width:0}
-.icon-btn{padding:7px 9px;font-size:13px;white-space:nowrap}
+.icon-btn{padding:7px 9px;font-size:13px}
 .empty{text-align:center;padding:30px 8px;color:#7e8795}
 .busy{opacity:.65;pointer-events:none}
-.toast-wrap{position:fixed;left:0;right:0;bottom:14px;z-index:20;display:flex;justify-content:center;padding:0 12px;pointer-events:none;min-height:0}
+.toast-wrap{position:fixed;left:0;right:0;bottom:14px;z-index:20;display:flex;justify-content:center;padding:0 12px;pointer-events:none}
 .toast{background:#252a33;border:1px solid #414854;box-shadow:0 8px 30px #0007;color:#fff;border-radius:12px;padding:10px 12px;font-size:13px;display:flex;gap:10px;align-items:center;max-width:700px;pointer-events:auto}
 .toast button{padding:7px 10px;background:#3a414c;font-size:12px}
 #status{min-height:18px;padding-top:5px;font-size:12px}
@@ -59,16 +59,6 @@ textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
   .controls{grid-template-columns:1fr 1fr}
   .controls .searchWrap{grid-column:1/-1}
   .controls button{width:100%}
-  .item{display:grid;grid-template-columns:20px minmax(0,1fr) 36px;gap:7px;padding:8px 0}
-  .domain{min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .item .icon-btn{width:32px;min-width:32px;height:32px;padding:0;font-size:0;line-height:32px;text-align:center}
-  .item .icon-btn:first-of-type::after{content:"✎";font-size:16px}
-  .item .danger.icon-btn::after{content:"×";font-size:20px}
-  .item > button{margin:0}
-  .item > button + button{margin-left:4px}
-  .item .domain-edit{width:100%;min-width:0}
-  .toast-wrap{bottom:10px;padding:0 8px}
-  .toast{width:100%;max-width:none;justify-content:space-between}
 }
 </style>
 </head>
@@ -78,7 +68,7 @@ textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
     <div class="title">
       <div>
         <h1>Forkop — домены</h1>
-        <div class="sub">nektopandroid-source / forkop-list / domain.txt · панель v10</div>
+        <div class="sub">nektopandroid-source / forkop-list / domain.txt · панель v12</div>
       </div>
       <button id="refresh" class="ghost" title="Загрузить актуальный domain.txt с GitHub">↻</button>
     </div>
@@ -86,7 +76,13 @@ textarea{width:100%;min-height:110px;resize:vertical;margin-top:9px}
 
   <section class="card">
     <div class="row">
-      <input id="newDomain" class="add-input" placeholder="Добавить домен…" autocomplete="off">
+      <input id="newDomain" class="add-input"
+       placeholder="Добавить домен…"
+       autocomplete="off"
+       autocapitalize="none"
+       autocorrect="off"
+       spellcheck="false"
+       inputmode="url">
       <button id="addBtn">Добавить</button>
     </div>
 
@@ -304,9 +300,11 @@ function render(){
     const row=document.createElement("div"); row.className="item";
     const cb=document.createElement("input"); cb.type="checkbox"; cb.className="checkbox"; cb.dataset.domain=d;
     const name=document.createElement("div"); name.className="domain"; name.textContent=d;
+    const edit=document.createElement("button"); edit.className="ghost icon-btn"; edit.textContent="Изменить";
+    edit.onclick=()=>startEdit(row,d);
     const del=document.createElement("button"); del.className="danger icon-btn"; del.textContent="Удалить";
-    del.title="Удалить"; del.setAttribute("aria-label","Удалить "+d); del.onclick=()=>deleteDomains([d]);
-    row.append(cb,name,del); frag.appendChild(row);
+    del.onclick=()=>deleteDomains([d]);
+    row.append(cb,name,edit,del); frag.appendChild(row);
   });
   $("list").appendChild(frag); updateSelection();
 }
@@ -404,6 +402,18 @@ async function addDomains(values){
 }
 $("addBtn").onclick=()=>{const v=$("newDomain").value;$("newDomain").value="";addDomains([v]);};
 $("newDomain").onkeydown=e=>{if(e.key==="Enter")$("addBtn").click();};
+$("newDomain").addEventListener("input",()=>{
+  const el=$("newDomain");
+  const oldValue=el.value;
+  const pos=el.selectionStart ?? oldValue.length;
+  const before=oldValue.slice(0,pos);
+  const newValue=oldValue.replace(/\s+/g,"");
+  if(newValue!==oldValue){
+    const removedBefore=(before.match(/\s/g)||[]).length;
+    el.value=newValue;
+    try{el.setSelectionRange(Math.max(0,pos-removedBefore),Math.max(0,pos-removedBefore));}catch(_e){}
+  }
+});
 $("search").oninput=render;
 $("refresh").onclick=()=>load(true);
 $("list").onchange=updateSelection;
