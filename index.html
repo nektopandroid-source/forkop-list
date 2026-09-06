@@ -40,9 +40,8 @@ button:disabled{opacity:.5;cursor:default}
 .list{margin-top:6px}
 .item{display:flex;align-items:center;gap:9px;padding:8px 2px;border-bottom:1px solid var(--line)}
 .item:last-child{border-bottom:0}
-.checkbox{width:18px;height:18px;flex:0 0 auto;accent-color:var(--accent)}
+.checkbox{width:20px;height:20px;min-height:20px;flex:0 0 auto;accent-color:var(--accent);-webkit-appearance:auto;appearance:auto}
 .domain{flex:1;min-width:0;font-size:14px;overflow-wrap:anywhere}
-.domain-edit{flex:1;min-width:0}
 .icon-btn{padding:7px 9px;font-size:13px}
 .empty{text-align:center;padding:30px 8px;color:#7e8795}
 .busy{opacity:.65;pointer-events:none}
@@ -68,7 +67,7 @@ textarea{width:100%;min-height:120px;resize:vertical;margin-top:9px;line-height:
     <div class="title">
       <div>
         <h1>Forkop — домены</h1>
-        <div class="sub">nektopandroid-source / forkop-list / domain.txt · панель v13</div>
+        <div class="sub">nektopandroid-source / forkop-list / domain.txt · панель v14</div>
       </div>
       <button id="refresh" class="ghost" title="Загрузить актуальный domain.txt с GitHub">↻</button>
     </div>
@@ -318,11 +317,9 @@ function render(){
     const row=document.createElement("div"); row.className="item";
     const cb=document.createElement("input"); cb.type="checkbox"; cb.className="checkbox"; cb.dataset.domain=d;
     const name=document.createElement("div"); name.className="domain"; name.textContent=d;
-    const edit=document.createElement("button"); edit.className="ghost icon-btn"; edit.textContent="Изменить";
-    edit.onclick=()=>startEdit(row,d);
     const del=document.createElement("button"); del.className="danger icon-btn"; del.textContent="Удалить";
     del.onclick=()=>deleteDomains([d]);
-    row.append(cb,name,edit,del); frag.appendChild(row);
+    row.append(cb,name,del); frag.appendChild(row);
   });
   $("list").appendChild(frag); updateSelection();
 }
@@ -374,31 +371,6 @@ async function deleteDomains(list){
   }catch(e){
     domains=old; render(); setStatus(e.message,"err");
   }
-}
-function startEdit(row,old){
-  if(saving)return;
-  row.innerHTML="";
-  const input=document.createElement("input"); input.value=old; input.className="domain-edit";
-  const ok=document.createElement("button"); ok.textContent="✓"; ok.className="icon-btn";
-  const cancel=document.createElement("button"); cancel.textContent="×"; cancel.className="ghost icon-btn";
-  row.append(input,ok,cancel); input.focus(); input.select();
-  const cancelEdit=()=>render();
-  cancel.onclick=cancelEdit;
-  input.onkeydown=e=>{if(e.key==="Escape")cancelEdit(); if(e.key==="Enter")ok.click();};
-  ok.onclick=async()=>{
-    const nd=normalize(input.value);
-    if(!validDomain(nd)){setStatus("Некорректный домен.","err");return;}
-    if(nd!==old&&domains.includes(nd)){setStatus("Такой домен уже есть.","warn");return;}
-    const oldList=snapshot();
-    domains=domains.map(d=>d===old?nd:d).sort((a,b)=>a.localeCompare(b)); render();
-    try{
-      await commit(`Edit ${old} to ${nd}`);
-      toast(`Изменено: ${nd}`,async()=>{
-        domains=oldList; render();
-        try{await commit("Undo edit");toast("Изменение отменено")}catch(e){setStatus(e.message,"err")}
-      });
-    }catch(e){domains=oldList;render();setStatus(e.message,"err")}
-  };
 }
 async function addDomains(values){
   if(saving)return;
