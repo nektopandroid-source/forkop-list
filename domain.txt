@@ -1,6 +1,5 @@
 account.sony.com
 adobedc.net
-api2.branch.io
 myprivacy.dpgmedia.nl
 online-fix.me
 playstation-cloud.net
