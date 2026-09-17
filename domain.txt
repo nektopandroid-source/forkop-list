@@ -1,5 +1,6 @@
 account.sony.com
 accounts.idmapper.api.playstation.com
+adobedc.net
 api.playstation.com
 api.playstation.net
 direct.playstation.com
