@@ -3,5 +3,6 @@ dolphin-emu.org
 mega.nz
 myprivacy.dpgmedia.nl
 online-fix.me
+serv.host
 tweakers.net
 tweaktown.com
