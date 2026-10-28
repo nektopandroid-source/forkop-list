@@ -1,6 +1,7 @@
 arcadepunks.com
 dolphin-emu.org
 mega.nz
+my.serv.host
 myprivacy.dpgmedia.nl
 online-fix.me
 serv.host
