@@ -4,6 +4,7 @@ mega.nz
 my.serv.host
 myprivacy.dpgmedia.nl
 online-fix.me
+openwrt-router.ru
 serv.host
 tweakers.net
 tweaktown.com
