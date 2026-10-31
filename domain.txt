@@ -4,6 +4,7 @@ files.nexus-cdn.com
 mega.nz
 my.serv.host
 myprivacy.dpgmedia.nl
+nexusmods.com
 online-fix.me
 openwrt-router.ru
 serv.host
