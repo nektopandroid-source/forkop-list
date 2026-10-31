@@ -1,5 +1,6 @@
 arcadepunks.com
 dolphin-emu.org
+files.nexus-cdn.com
 mega.nz
 my.serv.host
 myprivacy.dpgmedia.nl
