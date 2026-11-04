@@ -10,3 +10,4 @@ openwrt-router.ru
 serv.host
 tweakers.net
 tweaktown.com
+yeggi.com
