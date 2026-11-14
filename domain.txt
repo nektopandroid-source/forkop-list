@@ -7,6 +7,7 @@ myprivacy.dpgmedia.nl
 nexusmods.com
 online-fix.me
 openwrt-router.ru
+pythonhosted.org
 serv.host
 tweakers.net
 tweaktown.com
