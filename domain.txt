@@ -11,7 +11,6 @@ openwrt-router.ru
 pythonhosted.org
 romsforever.co
 serv.host
-shazoo.ru
 tweakers.net
 tweaktown.com
 yeggi.com
